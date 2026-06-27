@@ -12,8 +12,9 @@ dist
 dist-ssr
 *.local
 
-# Documentación local (no se sube a GitHub)
+# Documentación local y contexto (no se sube a GitHub)
 docsStudio/
+contextreposproject/
 
 # Editor directories and files
 .vscode/*
