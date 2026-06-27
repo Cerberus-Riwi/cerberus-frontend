@@ -10,9 +10,10 @@ interface GuardianSceneProps {
 export function GuardianScene({ mode }: GuardianSceneProps) {
   return (
     <Canvas
-      style={{ position: 'absolute', inset: 0 }}
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       gl={{ alpha: true, antialias: true }}
       camera={{ position: [0, 0.3, 7.2], fov: 45, near: 0.1, far: 100 }}
+      dpr={[1, 2]}
     >
       <CerberusModel mode={mode} />
       <GuardianParticles mode={mode} />
