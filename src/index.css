@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #04060b;
+}
+
+:root {
+  --accent: #22d3ee;
+  --accent2: #3b82f6;
+}
