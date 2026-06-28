@@ -10,27 +10,30 @@ interface GuardianParticlesProps {
 }
 
 export function GuardianParticles({ mode }: GuardianParticlesProps) {
-  const pointsRef = useRef<THREE.Points>(null)
-  const matRef    = useRef<THREE.PointsMaterial>(null)
+  const pointsRef  = useRef<THREE.Points>(null)
+  const matRef     = useRef<THREE.PointsMaterial>(null)
+  const colorTarget = useRef(new THREE.Color(0x49b9e8))
 
   const { geo, velocities } = useMemo(() => {
     const pos = new Float32Array(N * 3)
-    const velocities = new Float32Array(N)
+    const vel = new Float32Array(N)
     for (let i = 0; i < N; i++) {
       pos[i * 3]     = (Math.random() - 0.5) * 9
       pos[i * 3 + 1] = (Math.random() - 0.5) * 8
       pos[i * 3 + 2] = (Math.random() - 0.5) * 6
-      velocities[i]  = 0.005 + Math.random() * 0.016
+      vel[i]         = 0.005 + Math.random() * 0.016
     }
-    const geo = new THREE.BufferGeometry()
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-    return { geo, velocities }
+    const g = new THREE.BufferGeometry()
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+    return { geo: g, velocities: vel }
   }, [])
 
   useFrame(({ clock }) => {
-    if (!pointsRef.current || !matRef.current) return
+    const pts = pointsRef.current
+    const mat = matRef.current
+    if (!pts || !mat) return
 
-    const attr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute
+    const attr = pts.geometry.attributes.position as THREE.BufferAttribute
     const arr  = attr.array as Float32Array
     for (let i = 0; i < N; i++) {
       arr[i * 3 + 1] += velocities[i]
@@ -38,10 +41,10 @@ export function GuardianParticles({ mode }: GuardianParticlesProps) {
     }
     attr.needsUpdate = true
 
-    pointsRef.current.rotation.y = clock.getElapsedTime() * 0.025
+    pts.rotation.y = clock.getElapsedTime() * 0.025
 
-    const target = new THREE.Color(mode === 'login' ? 0x49b9e8 : 0xff8a3d)
-    matRef.current.color.lerp(target, 0.06)
+    colorTarget.current.set(mode === 'login' ? 0x49b9e8 : 0xff8a3d)
+    mat.color.lerp(colorTarget.current, 0.06)
   })
 
   return (

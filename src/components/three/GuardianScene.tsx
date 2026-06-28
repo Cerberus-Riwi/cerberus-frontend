@@ -8,8 +8,6 @@ interface GuardianSceneProps {
   mode: AuthMode
 }
 
-// Error boundary para errores de carga del GLB — los errores de R3F no los
-// captura Suspense (que solo maneja promesas), necesitan un ErrorBoundary separado
 class GLBErrorBoundary extends Component<
   { children: ReactNode },
   { error: boolean }
@@ -22,12 +20,17 @@ class GLBErrorBoundary extends Component<
   }
 }
 
-// Geometría mínima que se muestra si el GLB falla — nunca pantalla negra
+// Fallback visible cuando el GLB falla — usa emissive alto para verse sin luces
 function FallbackGeometry() {
   return (
-    <mesh position={[0, 0, 0]}>
+    <mesh>
       <icosahedronGeometry args={[1.2, 1]} />
-      <meshStandardMaterial color={0x22d3ee} emissive={0x0a3a4a} emissiveIntensity={0.8} flatShading />
+      <meshStandardMaterial
+        color={0x22d3ee}
+        emissive={0x22d3ee}
+        emissiveIntensity={0.6}
+        flatShading
+      />
     </mesh>
   )
 }
@@ -35,17 +38,22 @@ function FallbackGeometry() {
 export function GuardianScene({ mode }: GuardianSceneProps) {
   return (
     <Canvas
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+      style={{ position: 'absolute', inset: 0 }}
       gl={{ alpha: true, antialias: true }}
       camera={{ position: [0, 0.3, 7.2], fov: 45, near: 0.1, far: 100 }}
       dpr={[1, 1.5]}
-      performance={{ min: 0.5 }}
+      frameloop="always"
     >
+      {/* Luces base siempre presentes — independientes del modelo GLB */}
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[3, 6, 5]} intensity={1.0} />
+
       <GLBErrorBoundary>
         <Suspense fallback={<FallbackGeometry />}>
           <CerberusModel mode={mode} />
         </Suspense>
       </GLBErrorBoundary>
+
       <GuardianParticles mode={mode} />
     </Canvas>
   )
