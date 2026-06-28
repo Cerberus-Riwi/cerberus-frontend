@@ -19,6 +19,8 @@ export function CerberusModel({ mode }: CerberusModelProps) {
   const tmouse      = useRef({ x: 0, y: 0 })
   const emissive    = useRef(new THREE.Color(0x001433))
   const emTarget    = useRef(new THREE.Color(0x001433))
+  const rimColor    = useRef(new THREE.Color(0x22d3ee))
+  const rim2Color   = useRef(new THREE.Color(0x3b82f6))
 
   const url = mode === 'login' ? '/models/cerberus-stay.glb' : '/models/cerberus-walk.glb'
   const { scene } = useGLTF(url)
@@ -89,9 +91,11 @@ export function CerberusModel({ mode }: CerberusModelProps) {
       }
     })
 
-    // Lerp de luces rim
-    rimRef.current?.color.lerp(new THREE.Color(isLogin ? 0x22d3ee : 0xff8a3d), 0.06)
-    rim2Ref.current?.color.lerp(new THREE.Color(isLogin ? 0x3b82f6 : 0xff4d1c), 0.06)
+    // Lerp de luces rim — sin crear new THREE.Color() en cada frame
+    rimColor.current.set(isLogin ? 0x22d3ee : 0xff8a3d)
+    rim2Color.current.set(isLogin ? 0x3b82f6 : 0xff4d1c)
+    rimRef.current?.color.lerp(rimColor.current, 0.06)
+    rim2Ref.current?.color.lerp(rim2Color.current, 0.06)
   })
 
   return (
