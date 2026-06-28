@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { AuthMode } from '../../types/cerberus'
 
-const N = 420
+const N = 360
 
 interface GuardianParticlesProps {
   mode: AuthMode
@@ -11,49 +11,48 @@ interface GuardianParticlesProps {
 
 export function GuardianParticles({ mode }: GuardianParticlesProps) {
   const pointsRef = useRef<THREE.Points>(null)
-  const matRef = useRef<THREE.PointsMaterial>(null)
+  const matRef    = useRef<THREE.PointsMaterial>(null)
 
-  const { geometry, velocities } = useMemo(() => {
-    const positions = new Float32Array(N * 3)
+  const { geo, velocities } = useMemo(() => {
+    const pos = new Float32Array(N * 3)
     const velocities = new Float32Array(N)
     for (let i = 0; i < N; i++) {
-      positions[i * 3]     = (Math.random() - 0.5) * 13
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 11
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 8
-      velocities[i] = 0.004 + Math.random() * 0.018
+      pos[i * 3]     = (Math.random() - 0.5) * 9
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 8
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 6
+      velocities[i]  = 0.005 + Math.random() * 0.016
     }
-    const geometry = new THREE.BufferGeometry()
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-    return { geometry, velocities }
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+    return { geo, velocities }
   }, [])
 
   useFrame(({ clock }) => {
     if (!pointsRef.current || !matRef.current) return
 
-    // Flota las partículas hacia arriba con wraparound
-    const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute
-    const arr = posAttr.array as Float32Array
+    const attr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute
+    const arr  = attr.array as Float32Array
     for (let i = 0; i < N; i++) {
       arr[i * 3 + 1] += velocities[i]
-      if (arr[i * 3 + 1] > 5.6) arr[i * 3 + 1] = -5.6
+      if (arr[i * 3 + 1] > 4.5) arr[i * 3 + 1] = -4.5
     }
-    posAttr.needsUpdate = true
+    attr.needsUpdate = true
 
-    pointsRef.current.rotation.y = clock.getElapsedTime() * 0.03
+    pointsRef.current.rotation.y = clock.getElapsedTime() * 0.025
 
-    // Lerp del color de partículas según el modo
     const target = new THREE.Color(mode === 'login' ? 0x49b9e8 : 0xff8a3d)
     matRef.current.color.lerp(target, 0.06)
   })
 
   return (
-    <points ref={pointsRef} geometry={geometry}>
+    <points ref={pointsRef} geometry={geo}>
       <pointsMaterial
         ref={matRef}
         color={0x49b9e8}
-        size={0.07}
+        size={0.11}
+        sizeAttenuation
         transparent
-        opacity={0.85}
+        opacity={0.75}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
       />
