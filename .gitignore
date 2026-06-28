@@ -15,6 +15,7 @@ dist-ssr
 # Documentación local y contexto (no se sube a GitHub)
 docsStudio/
 contextreposproject/
+.claude/
 
 # Editor directories and files
 .vscode/*
