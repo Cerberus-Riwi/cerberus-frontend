@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Canvas } from '@react-three/fiber'
 import { GuardianParticles } from '../three/GuardianParticles'
 import { HeroFilmSection } from './HeroFilmSection'
+import { ScrollCube } from './ScrollCube'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -24,6 +25,9 @@ const TOOLS = [
 // ── Tokens de sección clara ────────────────────────────────────────────────────
 
 const LIGHT_BG = 'radial-gradient(ellipse 80% 70% at 50% 50%, #f5f8ff 0%, #e2ecff 40%, #c8d9ff 75%, #a8c0ff 100%)'
+
+// ← ajuste manual: sube este número para extender más la zona negra de transición
+const TOP_FADE_PX = 4000
 
 // Posiciones y tamaños de los cubos — deterministas para evitar re-renders
 const CUBE_DEFS = [
@@ -175,6 +179,7 @@ function useReveal() {
 
 export function LandingPage() {
   useReveal()
+  const lightZoneRef = useRef<HTMLDivElement>(null)
 
   return (
     <div style={{
@@ -210,32 +215,27 @@ export function LandingPage() {
         <HeroFilmSection />
 
         {/* ════ Zona clara única: Ignición → Footer ════
-            Un solo contenedor con el fondo; las secciones son transparentes.
-            El topFade de 52px funde con el negro del hero film al terminar. */}
-        <div style={{ position: 'relative', background: LIGHT_BG }}>
+            Un solo contenedor con el fondo; las secciones son transparentes. */}
+        <div ref={lightZoneRef} style={{ position: 'relative', background: LIGHT_BG }}>
+
+          {/* Ajuste manual: cambia TOP_FADE_PX para subir/bajar la zona de transición */}
           <div aria-hidden style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 42,
+            position: 'absolute', top: 0, left: 0, right: 0, height: TOP_FADE_PX,
             pointerEvents: 'none', zIndex: 10,
             background: 'linear-gradient(180deg, #04060b 0%, transparent 100%)',
           }} />
+
+          <ScrollCube wrapperRef={lightZoneRef} />
 
         {/* ════ Ignición ════ */}
         <section id="ignicion" style={{
           minHeight: '100vh', position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          textAlign: 'center', padding: '120px 24px',
+          textAlign: 'center', padding: '1400px 24px 120px',
           background: 'transparent',
         }}>
           <FloatingCubes />
 
-          <div aria-hidden style={{
-            position: 'relative', zIndex: 2,
-            width: 200, height: 320, margin: '0 auto 64px',
-            borderRadius: 24,
-            border: '1px solid rgba(60,100,220,0.15)',
-            background: 'radial-gradient(ellipse at 50% 80%, rgba(80,120,255,0.08) 0%, transparent 70%)',
-            boxShadow: '0 24px 64px rgba(60,100,220,0.14), 0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
-          }} />
 
           <span className="reveal" style={{
             position: 'relative', zIndex: 2,
