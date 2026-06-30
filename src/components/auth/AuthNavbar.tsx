@@ -24,10 +24,13 @@ export function AuthNavbar({ mode, onSwitch }: AuthNavbarProps) {
       WebkitBackdropFilter: 'blur(28px) saturate(160%)',
       borderBottom: '1px solid rgba(255,255,255,0.06)',
     }}>
-      {/* Solo el nombre — link a la landing page */}
+      {/* Logo + nombre — link a la landing page */}
       <Link
         to="/"
         style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
           fontFamily: "'Oswald', sans-serif",
           fontWeight: 600,
           letterSpacing: '0.18em',
@@ -37,6 +40,7 @@ export function AuthNavbar({ mode, onSwitch }: AuthNavbarProps) {
           textDecoration: 'none',
         }}
       >
+        <img src="/logo.png" alt="" aria-hidden width={28} height={28} style={{ objectFit: 'contain' }} />
         Cerberus
       </Link>
 
