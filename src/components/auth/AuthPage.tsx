@@ -4,7 +4,6 @@ import type { AuthMode } from '../../types/cerberus'
 import { AuthNavbar } from './AuthNavbar'
 import { LoginForm } from './LoginForm'
 import { RegisterForm } from './RegisterForm'
-import { GuardianScene } from '../three/GuardianScene'
 
 interface AuthPageProps {
   mode: AuthMode
@@ -37,16 +36,25 @@ export function AuthPage({ mode }: AuthPageProps) {
         width: '100%',
         height: '100vh',
         overflow: 'hidden',
-        background: 'radial-gradient(120% 90% at 50% -10%, #0a1424 0%, #04060b 55%, #060406 100%)',
+        background: '#04060b',
         fontFamily: "'Space Grotesk', system-ui, sans-serif",
         color: '#e9eef8',
         WebkitFontSmoothing: 'antialiased',
       }}
     >
-      {/* Canvas full-screen — nunca se oculta ni se mueve */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <GuardianScene mode={mode} />
-      </div>
+      {/* Video de fondo full-screen */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute', inset: 0, zIndex: 1,
+          width: '100%', height: '100%',
+          objectFit: 'cover',
+        }}
+        src="/cerberus-bg.mp4"
+      />
 
       {/* Ambient glow que sigue al panel */}
       <div aria-hidden style={{

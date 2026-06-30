@@ -24,20 +24,27 @@ export function AuthNavbar({ mode, onSwitch }: AuthNavbarProps) {
       WebkitBackdropFilter: 'blur(28px) saturate(160%)',
       borderBottom: '1px solid rgba(255,255,255,0.06)',
     }}>
-      {/* Solo el nombre — link a la landing page */}
+      {/* Logo — link a la landing page */}
       <Link
         to="/"
         style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          textDecoration: 'none',
+        }}
+      >
+        <img src="/favicon.svg" alt="Cerberus" style={{ width: 28, height: 28 }} />
+        <span style={{
           fontFamily: "'Oswald', sans-serif",
           fontWeight: 600,
           letterSpacing: '0.18em',
           fontSize: 18,
           textTransform: 'uppercase',
           color: '#e9eef8',
-          textDecoration: 'none',
-        }}
-      >
-        Cerberus
+        }}>
+          Cerberus
+        </span>
       </Link>
 
       {/* Pill container — tab switcher estilo macOS */}
