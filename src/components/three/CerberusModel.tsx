@@ -62,9 +62,12 @@ export function CerberusModel({ mode }: CerberusModelProps) {
     const t = clock.getElapsedTime()
     const isLogin = mode === 'login'
 
-    // Desplazar cámara para centrar el modelo en la mitad libre de pantalla
-    const camTargetX = isLogin ? 1.5 : -1.5
-    camera.position.x += (camTargetX - camera.position.x) * 0.04
+    // Desplazar cámara para centrar el modelo en la MITAD LIBRE de pantalla
+    // (la opuesta al formulario). Login → forma a la derecha, Cerbero a la
+    // izquierda; registro → al revés. Un offset mayor lo aleja del divisor y
+    // lo deja centrado en su mitad en vez de pegado al panel.
+    const camTargetX = isLogin ? 2.5 : -2.5
+    camera.position.x += (camTargetX - camera.position.x) * 0.05
 
     // Suavizado de mouse
     tmouse.current.x += (pointer.x - tmouse.current.x) * 0.06
