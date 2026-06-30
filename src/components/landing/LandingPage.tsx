@@ -58,26 +58,6 @@ function FloatingCubes() {
   )
 }
 
-// Capas de profundidad + cubos. topFade solo para la primera sección clara (Ignición)
-// que necesita fundir con el hero oscuro que la precede.
-function SectionDepth({ topFade = false }: { topFade?: boolean }) {
-  return (
-    <>
-      {topFade && (
-        <div aria-hidden style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: '15%',
-          pointerEvents: 'none', zIndex: 0,
-          background: 'linear-gradient(180deg, #04060b 0%, rgba(4,6,11,0) 100%)',
-        }} />
-      )}
-      <div aria-hidden style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-        background: 'radial-gradient(ellipse 50% 45% at 50% 50%, rgba(255,255,255,0.55) 0%, transparent 100%)',
-      }} />
-      <FloatingCubes />
-    </>
-  )
-}
 
 // ── Subcomponentes ─────────────────────────────────────────────────────────────
 
@@ -108,7 +88,6 @@ function LandingNavbar() {
       backdropFilter: 'blur(14px)',
       WebkitBackdropFilter: 'blur(14px)',
       background: 'linear-gradient(180deg, rgba(4,6,11,0.82), rgba(4,6,11,0))',
-      borderBottom: '1px solid rgba(120,160,220,0.06)',
     }}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
         <CerberusLogo />
@@ -188,14 +167,24 @@ export function LandingPage() {
         {/* ════ Hero + Film ════ */}
         <HeroFilmSection />
 
+        {/* ════ Zona clara única: Ignición → Footer ════
+            Un solo contenedor con el fondo; las secciones son transparentes.
+            El topFade de 52px funde con el negro del hero film al terminar. */}
+        <div style={{ position: 'relative', background: LIGHT_BG }}>
+          <div aria-hidden style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 52,
+            pointerEvents: 'none', zIndex: 10,
+            background: 'linear-gradient(180deg, #04060b 0%, transparent 100%)',
+          }} />
+
         {/* ════ Ignición ════ */}
         <section id="ignicion" style={{
           minHeight: '100vh', position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', padding: '120px 24px',
-          background: LIGHT_BG,
+          background: 'transparent',
         }}>
-          <SectionDepth topFade />
+          <FloatingCubes />
 
           <div aria-hidden style={{
             position: 'relative', zIndex: 2,
@@ -242,9 +231,9 @@ export function LandingPage() {
           minHeight: '120vh', position: 'relative', overflow: 'hidden',
           display: 'flex', alignItems: 'center',
           padding: '120px 7vw',
-          background: LIGHT_BG,
+          background: 'transparent',
         }}>
-          <SectionDepth />
+          <FloatingCubes />
           <div style={{ maxWidth: 560, position: 'relative', zIndex: 2 }}>
             <span className="reveal" style={{
               display: 'block', fontFamily: "'JetBrains Mono', monospace",
@@ -308,9 +297,9 @@ export function LandingPage() {
           minHeight: '120vh', position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end',
           textAlign: 'center', padding: '120px 7vw 130px',
-          background: LIGHT_BG,
+          background: 'transparent',
         }}>
-          <SectionDepth />
+          <FloatingCubes />
           <span className="reveal" style={{
             position: 'relative', zIndex: 2,
             display: 'block', fontFamily: "'JetBrains Mono', monospace",
@@ -376,9 +365,9 @@ export function LandingPage() {
           minHeight: '120vh', position: 'relative', overflow: 'hidden',
           display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
           padding: '120px 7vw',
-          background: LIGHT_BG,
+          background: 'transparent',
         }}>
-          <SectionDepth />
+          <FloatingCubes />
           <div style={{ maxWidth: 560, position: 'relative', zIndex: 2 }}>
             <span className="reveal" style={{
               display: 'block', fontFamily: "'JetBrains Mono', monospace",
@@ -483,9 +472,9 @@ export function LandingPage() {
           minHeight: '90vh', position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', padding: '120px 24px 80px',
-          background: LIGHT_BG,
+          background: 'transparent',
         }}>
-          <SectionDepth />
+          <FloatingCubes />
           <h2 className="reveal" style={{
             position: 'relative', zIndex: 2, margin: 0,
             fontSize: 'clamp(40px, 7vw, 86px)',
@@ -524,7 +513,7 @@ export function LandingPage() {
           padding: '44px 7vw',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: 18,
-          background: LIGHT_BG,
+          background: 'transparent',
         }}>
           <FloatingCubes />
 
@@ -548,6 +537,7 @@ export function LandingPage() {
             TRES CABEZAS · UN VEREDICTO · 2026
           </div>
         </footer>
+        </div>{/* fin zona clara */}
 
       </main>
     </div>
