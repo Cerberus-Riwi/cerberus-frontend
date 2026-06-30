@@ -5,70 +5,16 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const FRAME_COUNT = 108
-
 export function HeroFilmSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const canvasRef  = useRef<HTMLCanvasElement>(null)
+  const videoRef   = useRef<HTMLVideoElement>(null)
   const heroRef    = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const section = sectionRef.current
-    const canvas  = canvasRef.current
+    const video   = videoRef.current
     const hero    = heroRef.current
-    if (!section || !canvas || !hero) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const frames: HTMLImageElement[] = []
-    let currentIdx = 0
-    let sized = false
-    let lastLoadedIdx = -1
-
-    function sizeCanvas() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      canvas!.width  = Math.round(window.innerWidth  * dpr)
-      canvas!.height = Math.round(window.innerHeight * dpr)
-      sized = true
-      drawFrame(currentIdx)
-    }
-
-    function drawImg(img: HTMLImageElement) {
-      const W = canvas!.width
-      const H = canvas!.height
-      ctx!.clearRect(0, 0, W, H)
-      const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight)
-      const w = img.naturalWidth  * scale
-      const h = img.naturalHeight * scale
-      ctx!.drawImage(img, (W - w) / 2, (H - h) / 2, w, h)
-    }
-
-    function drawFrame(idx: number) {
-      if (!sized) return
-      currentIdx = idx
-      const img = frames[idx]
-      if (img?.complete && img.naturalWidth) {
-        drawImg(img)
-      } else if (lastLoadedIdx >= 0) {
-        // frame no cargado aún — usa el último disponible como fallback
-        drawImg(frames[lastLoadedIdx])
-      }
-    }
-
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image()
-      img.onload = () => {
-        lastLoadedIdx = Math.max(lastLoadedIdx, i)
-        if (i === 0) { sizeCanvas(); drawFrame(0) }
-        // si ScrollTrigger ya avanzó y esperaba este frame, dibujarlo
-        if (i === currentIdx) drawFrame(i)
-      }
-      img.src = `/frames/cerberusframe${String(i + 1).padStart(4, '0')}.jpg`
-      frames.push(img)
-    }
-
-    sizeCanvas()
+    if (!section || !video || !hero) return
 
     const navbar = document.getElementById('landing-nav')
 
@@ -78,36 +24,31 @@ export function HeroFilmSection() {
     })
     if (navbar) tlNavFade.to(navbar, { opacity: 0, ease: 'none' })
 
-    // ── Hero: sube y se desvanece (más orgánico que un fade plano) ──
+    // ── Hero: sube y se desvanece ──
     const tlHeroFade = gsap.timeline({
       scrollTrigger: { trigger: section, start: 'top top', end: '13% top', scrub: 1.2 },
     })
     tlHeroFade.to(hero, { opacity: 0, y: -70, ease: 'power1.in' })
 
-    // ── Frame scrub: cubre el 100% de la sección ──
-    const stFrames = ScrollTrigger.create({
+    // ── Video scrub: mapea scroll progress → currentTime ──
+    const stVideo = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
       end: 'bottom bottom',
       scrub: 0.6,
       onUpdate(self) {
-        const idx = Math.round(self.progress * (FRAME_COUNT - 1))
-        drawFrame(Math.max(0, Math.min(FRAME_COUNT - 1, idx)))
+        if (video.readyState >= 2 && video.duration) {
+          video.currentTime = self.progress * video.duration
+        }
       },
     })
 
-    window.addEventListener('resize', sizeCanvas)
-
-    // Recalcula posiciones después del primer paint (fuentes, layout)
     requestAnimationFrame(() => ScrollTrigger.refresh())
 
     return () => {
-      tlNavFade.scrollTrigger?.kill()
-      tlNavFade.kill()
-      tlHeroFade.scrollTrigger?.kill()
-      tlHeroFade.kill()
-      stFrames.kill()
-      window.removeEventListener('resize', sizeCanvas)
+      tlNavFade.scrollTrigger?.kill(); tlNavFade.kill()
+      tlHeroFade.scrollTrigger?.kill(); tlHeroFade.kill()
+      stVideo.kill()
     }
   }, [])
 
@@ -118,13 +59,17 @@ export function HeroFilmSection() {
         overflow: 'hidden',
         background: '#04060b',
       }}>
-        {/* Canvas de frames — capa base */}
-        <canvas
-          ref={canvasRef}
+        {/* Video de frames — sustituye el canvas 2D */}
+        <video
+          ref={videoRef}
+          src="/cerberus-hero.mp4"
+          muted
+          playsInline
+          preload="auto"
           style={{
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
-            display: 'block',
+            objectFit: 'cover', display: 'block',
           }}
         />
 
@@ -134,7 +79,7 @@ export function HeroFilmSection() {
           background: 'linear-gradient(180deg, rgba(4,6,11,0.58) 0%, rgba(4,6,11,0) 26%, rgba(4,6,11,0) 68%, rgba(4,6,11,0.97) 100%)',
         }} />
 
-        {/* Contenido hero — se desvanece al hacer scroll */}
+        {/* Contenido hero */}
         <div ref={heroRef} style={{
           position: 'absolute', inset: 0, zIndex: 2,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
