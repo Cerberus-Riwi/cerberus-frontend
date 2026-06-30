@@ -1,3 +1,5 @@
+import { COLORS, FONTS, RADIUS } from '../../lib/theme'
+
 interface AuthButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
 }
@@ -8,23 +10,25 @@ export function AuthButton({ children, style, ...props }: AuthButtonProps) {
       {...props}
       style={{
         width: '100%',
-        marginTop: 6,
-        padding: '15px',
+        marginTop: 4,
+        padding: '12px 16px',
         border: 'none',
-        borderRadius: 12,
+        borderRadius: RADIUS.sm,
         cursor: 'pointer',
-        fontFamily: "'Oswald', sans-serif",
+        fontFamily: FONTS.sans,
         fontWeight: 600,
-        fontSize: 16,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        color: '#04060b',
-        background: 'linear-gradient(100deg, var(--accent), var(--accent2))',
-        transition: 'filter 0.25s ease, transform 0.25s ease',
+        fontSize: 14.5,
+        color: '#fff',
+        background: COLORS.brand,
+        transition: 'background 0.18s ease',
         ...style,
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.filter = 'brightness(1.1)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-      onMouseLeave={(e) => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = '' }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = COLORS.brandHover
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = COLORS.brand
+      }}
     >
       {children}
     </button>

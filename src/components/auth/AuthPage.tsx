@@ -1,117 +1,131 @@
-import { useRef, useLayoutEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { AuthMode } from '../../types/cerberus'
-import { AuthNavbar } from './AuthNavbar'
+import { COLORS, FONTS, RADIUS } from '../../lib/theme'
+import { useMediaQuery } from '../../lib/useMediaQuery'
+import { Seal } from '../ui/Seal'
 import { LoginForm } from './LoginForm'
 import { RegisterForm } from './RegisterForm'
-import { GuardianScene } from '../three/GuardianScene'
 
 interface AuthPageProps {
   mode: AuthMode
 }
 
-const THEME = {
-  login:    { accent: '#22d3ee', accent2: '#3b82f6' },
-  register: { accent: '#ff8a3d', accent2: '#ff4d1c' },
-}
-
 export function AuthPage({ mode }: AuthPageProps) {
-  const rootRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
-  const isLogin  = mode === 'login'
-
-  useLayoutEffect(() => {
-    const el = rootRef.current
-    if (!el) return
-    el.style.setProperty('--accent', THEME[mode].accent)
-    el.style.setProperty('--accent2', THEME[mode].accent2)
-  }, [mode])
-
+  const compact = useMediaQuery('(max-width: 860px)')
+  const isLogin = mode === 'login'
   const switchTo = (m: AuthMode) => navigate({ to: `/${m}` })
 
   return (
-    <div
-      ref={rootRef}
+    <div style={{ display: 'flex', flexDirection: compact ? 'column' : 'row', minHeight: '100vh', background: COLORS.appBg }}>
+      {/* Panel de marca */}
+      <aside
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          flexShrink: 0,
+          width: compact ? '100%' : '42%',
+          background: COLORS.sidebar,
+          color: COLORS.onDark,
+          padding: compact ? '18px 24px' : '40px 44px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Marca */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, zIndex: 1 }}>
+          <Seal size={compact ? 24 : 28} />
+          <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+            <span style={{ fontFamily: FONTS.sans, fontSize: compact ? 16 : 18, fontWeight: 600 }}>Cerberus</span>
+            <span style={{ fontFamily: FONTS.mono, fontSize: 10, color: COLORS.onDarkMuted, letterSpacing: '0.08em' }}>
+              SECURITY GATE
+            </span>
+          </span>
+        </div>
+
+        {/* Mensaje (solo escritorio) */}
+        {!compact && (
+          <div style={{ marginTop: 'auto', marginBottom: 'auto', zIndex: 1 }}>
+            <h2 style={{ fontFamily: FONTS.sans, fontSize: 30, fontWeight: 600, lineHeight: 1.2, maxWidth: 360 }}>
+              El guardián de tus despliegues
+            </h2>
+            <p style={{ marginTop: 14, fontFamily: FONTS.sans, fontSize: 15, lineHeight: 1.6, color: COLORS.onDarkMuted, maxWidth: 340 }}>
+              Análisis de seguridad y calidad de código en cada commit. Un veredicto claro antes de
+              que el cambio llegue a producción.
+            </p>
+          </div>
+        )}
+
+        {!compact && (
+          <span style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.onDarkMuted, zIndex: 1 }}>
+            DevSecOps · Kubernetes · GitHub Actions
+          </span>
+        )}
+
+        {/* Marca de agua */}
+        {!compact && (
+          <div aria-hidden style={{ position: 'absolute', right: -60, bottom: -60, opacity: 0.05, color: '#fff' }}>
+            <Seal size={320} weight={3} />
+          </div>
+        )}
+      </aside>
+
+      {/* Panel de formulario */}
+      <main
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: compact ? '36px 24px 48px' : '40px',
+        }}
+      >
+        {/* Switch Entrar / Crear cuenta */}
+        <div
+          style={{
+            display: 'inline-flex',
+            padding: 4,
+            marginBottom: 28,
+            background: COLORS.surface,
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: RADIUS.pill,
+          }}
+        >
+          <Tab label="Entrar" active={isLogin} onClick={() => switchTo('login')} />
+          <Tab label="Crear cuenta" active={!isLogin} onClick={() => switchTo('register')} />
+        </div>
+
+        {isLogin ? (
+          <LoginForm onSwitchToRegister={() => switchTo('register')} />
+        ) : (
+          <RegisterForm onSwitchToLogin={() => switchTo('login')} />
+        )}
+      </main>
+    </div>
+  )
+}
+
+function Tab({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
       style={{
-        position: 'relative',
-        width: '100%',
-        height: '100vh',
-        overflow: 'hidden',
-        background: 'radial-gradient(120% 90% at 50% -10%, #0a1424 0%, #04060b 55%, #060406 100%)',
-        fontFamily: "'Space Grotesk', system-ui, sans-serif",
-        color: '#e9eef8',
-        WebkitFontSmoothing: 'antialiased',
+        appearance: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '8px 18px',
+        borderRadius: RADIUS.pill,
+        fontFamily: FONTS.sans,
+        fontSize: 13.5,
+        fontWeight: 600,
+        background: active ? COLORS.brand : 'transparent',
+        color: active ? '#fff' : COLORS.textMuted,
+        transition: 'background 0.18s ease, color 0.18s ease',
       }}
     >
-      {/* Canvas full-screen — nunca se oculta ni se mueve */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <GuardianScene mode={mode} />
-      </div>
-
-      {/* Ambient glow que sigue al panel */}
-      <div aria-hidden style={{
-        position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none',
-        background: `radial-gradient(60% 60% at ${isLogin ? '25%' : '75%'} 55%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 60%)`,
-        transition: 'background 0.85s ease',
-      }} />
-
-      {/* Grid decorativo */}
-      <div aria-hidden style={{
-        position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', opacity: 0.5,
-        backgroundImage: 'linear-gradient(rgba(120,160,220,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(120,160,220,0.04) 1px, transparent 1px)',
-        backgroundSize: '46px 46px',
-        maskImage: 'radial-gradient(80% 80% at 50% 40%, #000 0%, transparent 80%)',
-      }} />
-
-      <AuthNavbar mode={mode} onSwitch={switchTo} />
-
-      {/* Cortina de formulario — desliza sobre el 3D sin tocarlo */}
-      <div style={{
-        position: 'absolute',
-        top: 80, bottom: 0, width: '50%',
-        left: isLogin ? '50%' : '0%',
-        transition: 'left 0.82s cubic-bezier(.76,0,.24,1)',
-        zIndex: 10,
-        background: 'rgba(4, 6, 11, 0.38)',
-        backdropFilter: 'blur(28px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(160%)',
-        borderLeft: isLogin ? '1px solid rgba(255,255,255,0.06)' : 'none',
-        borderRight: isLogin ? 'none' : '1px solid rgba(255,255,255,0.06)',
-      }}>
-        {/* Línea de acento en el borde interior */}
-        <div aria-hidden style={{
-          position: 'absolute', top: '10%', bottom: '10%', width: 1,
-          left: isLogin ? 0 : 'auto',
-          right: isLogin ? 'auto' : 0,
-          background: 'linear-gradient(to bottom, transparent, var(--accent), transparent)',
-          opacity: 0.35,
-          transition: 'left 0.82s cubic-bezier(.76,0,.24,1), right 0.82s cubic-bezier(.76,0,.24,1), background 0.85s ease',
-        }} />
-
-        {/* Login form */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-          padding: 24,
-          opacity: isLogin ? 1 : 0,
-          pointerEvents: isLogin ? 'auto' : 'none',
-          transition: 'opacity 0.35s ease',
-        }}>
-          <LoginForm onSwitchToRegister={() => switchTo('register')} />
-        </div>
-
-        {/* Register form */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-          padding: 24,
-          opacity: isLogin ? 0 : 1,
-          pointerEvents: isLogin ? 'none' : 'auto',
-          transition: 'opacity 0.35s ease',
-        }}>
-          <RegisterForm onSwitchToLogin={() => switchTo('login')} />
-        </div>
-      </div>
-    </div>
+      {label}
+    </button>
   )
 }
