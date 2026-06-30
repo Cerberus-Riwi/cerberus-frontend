@@ -83,17 +83,6 @@ export function HeroFilmSection() {
     })
     tlFade.to([hero, navbar].filter(Boolean), { opacity: 0, ease: 'none' })
 
-    // ── Navbar: vuelve al terminar la sección ──
-    const tlNavBack = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: '88% top',
-        end: 'bottom top',
-        scrub: true,
-      },
-    })
-    if (navbar) tlNavBack.to(navbar, { opacity: 1, ease: 'none' })
-
     // ── Frame scrub: cubre el 100% de la sección ──
     const stFrames = ScrollTrigger.create({
       trigger: section,
@@ -114,8 +103,6 @@ export function HeroFilmSection() {
     return () => {
       tlFade.scrollTrigger?.kill()
       tlFade.kill()
-      tlNavBack.scrollTrigger?.kill()
-      tlNavBack.kill()
       stFrames.kill()
       window.removeEventListener('resize', sizeCanvas)
     }

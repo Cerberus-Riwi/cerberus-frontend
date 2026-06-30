@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Canvas } from '@react-three/fiber'
 import { GuardianParticles } from '../three/GuardianParticles'
@@ -117,6 +117,47 @@ function LandingNavbar() {
   )
 }
 
+// ── Back to top ───────────────────────────────────────────────────────────────
+
+function BackToTop() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 300)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      aria-label="Volver arriba"
+      style={{
+        position: 'fixed', bottom: 32, right: 26, zIndex: 200,
+        width: 40, height: 40, borderRadius: '50%',
+        border: '1px solid rgba(255,255,255,0.14)',
+        background: 'rgba(4,6,11,0.72)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        color: '#e9eef8',
+        cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 0,
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? 'auto' : 'none',
+        transform: visible ? 'translateY(0)' : 'translateY(10px)',
+        transition: 'opacity 0.28s ease, transform 0.28s ease',
+      }}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.5"
+        strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="18 15 12 9 6 15" />
+      </svg>
+    </button>
+  )
+}
+
 // ── Hook reveal ───────────────────────────────────────────────────────────────
 
 function useReveal() {
@@ -161,6 +202,7 @@ export function LandingPage() {
       }} />
 
       <LandingNavbar />
+      <BackToTop />
 
       <main style={{ position: 'relative', zIndex: 10 }}>
 
@@ -172,7 +214,7 @@ export function LandingPage() {
             El topFade de 52px funde con el negro del hero film al terminar. */}
         <div style={{ position: 'relative', background: LIGHT_BG }}>
           <div aria-hidden style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 52,
+            position: 'absolute', top: 0, left: 0, right: 0, height: 42,
             pointerEvents: 'none', zIndex: 10,
             background: 'linear-gradient(180deg, #04060b 0%, transparent 100%)',
           }} />
