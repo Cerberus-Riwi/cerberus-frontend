@@ -58,14 +58,18 @@ function FloatingCubes() {
   )
 }
 
-// Capas de profundidad + cubos reutilizables para secciones claras
-function SectionDepth() {
+// Capas de profundidad + cubos. topFade solo para la primera sección clara (Ignición)
+// que necesita fundir con el hero oscuro que la precede.
+function SectionDepth({ topFade = false }: { topFade?: boolean }) {
   return (
     <>
-      <div aria-hidden style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-        background: 'linear-gradient(180deg, #04060b 0%, rgba(4,6,11,0) 13%, rgba(4,6,11,0) 87%, #04060b 100%)',
-      }} />
+      {topFade && (
+        <div aria-hidden style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '15%',
+          pointerEvents: 'none', zIndex: 0,
+          background: 'linear-gradient(180deg, #04060b 0%, rgba(4,6,11,0) 100%)',
+        }} />
+      )}
       <div aria-hidden style={{
         position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
         background: 'radial-gradient(ellipse 50% 45% at 50% 50%, rgba(255,255,255,0.55) 0%, transparent 100%)',
@@ -191,7 +195,7 @@ export function LandingPage() {
           textAlign: 'center', padding: '120px 24px',
           background: LIGHT_BG,
         }}>
-          <SectionDepth />
+          <SectionDepth topFade />
 
           <div aria-hidden style={{
             position: 'relative', zIndex: 2,
@@ -517,32 +521,31 @@ export function LandingPage() {
         {/* ════ Footer ════ */}
         <footer style={{
           position: 'relative', overflow: 'hidden',
-          borderTop: '1px solid rgba(60,100,200,0.15)',
-          padding: '40px 7vw',
+          padding: '44px 7vw',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: 18,
           background: LIGHT_BG,
         }}>
-          <div aria-hidden style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            background: 'linear-gradient(180deg, #04060b 0%, rgba(4,6,11,0) 40%)',
-          }} />
           <FloatingCubes />
-          <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 11 }}>
-            <CerberusLogo size={22} />
+
+          <div className="reveal" style={{ position: 'relative', zIndex: 2 }}>
             <span style={{
-              fontFamily: "'Oswald', sans-serif", fontWeight: 700,
-              letterSpacing: '0.18em', fontSize: 17, textTransform: 'uppercase', color: '#0d1832',
+              fontFamily: "'Orbitron', 'JetBrains Mono', monospace", fontWeight: 900,
+              letterSpacing: '0.22em', fontSize: 18, textTransform: 'uppercase',
+              color: '#0d1832',
+              textShadow: '0 0 28px rgba(37,99,235,0.28), 0 2px 8px rgba(0,0,0,0.08)',
             }}>
               CERBERUS
             </span>
           </div>
-          <div style={{
+
+          <div className="reveal" style={{
             position: 'relative', zIndex: 2,
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5,
-            color: '#3d5580', letterSpacing: '0.06em',
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5,
+            color: '#3d5580', letterSpacing: '0.1em', textTransform: 'uppercase',
+            transitionDelay: '0.1s',
           }}>
-            Un proyecto de RiwiLaziness · 2026
+            TRES CABEZAS · UN VEREDICTO · 2026
           </div>
         </footer>
 
