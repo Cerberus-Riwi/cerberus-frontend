@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { AuthInput } from './AuthInput'
 import { AuthButton } from './AuthButton'
 import type { LoginCredentials } from '../../types/cerberus'
@@ -8,6 +9,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+  const navigate = useNavigate()
   const [form, setForm] = useState<LoginCredentials>({
     email: '',
     password: '',
@@ -17,7 +19,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // TODO: conectar con cerberus-securitygate auth endpoint
-    console.log('login:', form)
+    navigate({ to: '/scans' })
   }
 
   return (

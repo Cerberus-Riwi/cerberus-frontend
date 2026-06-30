@@ -10,6 +10,8 @@ import {
 } from '@tanstack/react-router'
 import './index.css'
 import { AuthPage } from './components/auth/AuthPage'
+import { ScansListPage } from './pages/ScansListPage'
+import { ScanDetailPage } from './pages/ScanDetailPage'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -33,7 +35,25 @@ const registerRoute = createRoute({
   component: () => <AuthPage mode="register" />,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, registerRoute])
+const scansRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/scans',
+  component: ScansListPage,
+})
+
+const scanDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/scans/$scanId',
+  component: ScanDetailPage,
+})
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  registerRoute,
+  scansRoute,
+  scanDetailRoute,
+])
 
 const router = createRouter({ routeTree })
 
