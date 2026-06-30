@@ -72,16 +72,17 @@ export function HeroFilmSection() {
 
     const navbar = document.getElementById('landing-nav')
 
-    // ── Hero text + navbar: desaparecen en el primer 10% del scroll ──
-    const tlFade = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top',
-        end: '10% top',
-        scrub: true,
-      },
+    // ── Navbar: fade simple ──
+    const tlNavFade = gsap.timeline({
+      scrollTrigger: { trigger: section, start: 'top top', end: '10% top', scrub: true },
     })
-    tlFade.to([hero, navbar].filter(Boolean), { opacity: 0, ease: 'none' })
+    if (navbar) tlNavFade.to(navbar, { opacity: 0, ease: 'none' })
+
+    // ── Hero: sube y se desvanece (más orgánico que un fade plano) ──
+    const tlHeroFade = gsap.timeline({
+      scrollTrigger: { trigger: section, start: 'top top', end: '13% top', scrub: 1.2 },
+    })
+    tlHeroFade.to(hero, { opacity: 0, y: -70, ease: 'power1.in' })
 
     // ── Frame scrub: cubre el 100% de la sección ──
     const stFrames = ScrollTrigger.create({
@@ -101,8 +102,10 @@ export function HeroFilmSection() {
     requestAnimationFrame(() => ScrollTrigger.refresh())
 
     return () => {
-      tlFade.scrollTrigger?.kill()
-      tlFade.kill()
+      tlNavFade.scrollTrigger?.kill()
+      tlNavFade.kill()
+      tlHeroFade.scrollTrigger?.kill()
+      tlHeroFade.kill()
       stFrames.kill()
       window.removeEventListener('resize', sizeCanvas)
     }
