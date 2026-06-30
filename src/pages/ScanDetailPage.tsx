@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import type { ScanVerdict, ScanRequest } from '../types/cerberus'
 import { getScanVerdict, getScanRequest } from '../lib/scans'
-import { FONTS, COLORS } from '../lib/theme'
+import { COLORS, FONTS } from '../lib/theme'
 import { ScanDetail } from '../components/dashboard/ScanDetail'
 
 type LoadState =
@@ -19,10 +19,7 @@ export function ScanDetailPage() {
     setState({ phase: 'loading' })
     getScanVerdict(scanId).then((verdict) => {
       if (!active) return
-      if (!verdict) {
-        setState({ phase: 'missing' })
-        return
-      }
+      if (!verdict) return setState({ phase: 'missing' })
       setState({ phase: 'ready', verdict, request: getScanRequest(scanId) })
     })
     return () => {
@@ -30,19 +27,10 @@ export function ScanDetailPage() {
     }
   }, [scanId])
 
-  if (state.phase === 'loading') {
-    return <CenteredNote text="Cargando veredicto…" />
-  }
-
+  if (state.phase === 'loading') return <CenteredNote text="Cargando veredicto…" />
   if (state.phase === 'missing') {
-    return (
-      <CenteredNote
-        text={`No se encontró ningún escaneo con ID ${scanId.split('-')[0]}.`}
-        showBack
-      />
-    )
+    return <CenteredNote text={`No se encontró ningún escaneo con ID ${scanId.split('-')[0]}.`} showBack />
   }
-
   return <ScanDetail verdict={state.verdict} request={state.request} />
 }
 
@@ -55,29 +43,18 @@ function CenteredNote({ text, showBack }: { text: string; showBack?: boolean }) 
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 18,
-        background: 'radial-gradient(120% 80% at 50% -10%, #0a1424 0%, #04060b 55%, #060406 100%)',
-        color: COLORS.muted,
-        fontFamily: FONTS.mono,
-        fontSize: 14,
+        gap: 16,
         padding: 24,
         textAlign: 'center',
+        color: COLORS.textMuted,
+        fontFamily: FONTS.sans,
+        fontSize: 14,
       }}
     >
       <span>{text}</span>
       {showBack && (
-        <Link
-          to="/scans"
-          style={{
-            fontFamily: FONTS.mono,
-            fontSize: 12,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: '#22d3ee',
-            textDecoration: 'none',
-          }}
-        >
-          ← Volver a escaneos
+        <Link to="/scans" style={{ fontFamily: FONTS.sans, fontSize: 13.5, fontWeight: 600, color: COLORS.brand, textDecoration: 'none' }}>
+          ‹ Volver a escaneos
         </Link>
       )}
     </div>
