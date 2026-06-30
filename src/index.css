@@ -70,3 +70,8 @@ body {
   0%, 100% { transform: translate(0, 0) scale(1); }
   50%       { transform: translate(3vw, -5vh) scale(1.1); }
 }
+
+@keyframes cubeFloat {
+  0%, 100% { transform: translateY(0px)   rotate(0deg); }
+  50%       { transform: translateY(-22px) rotate(90deg); }
+}
