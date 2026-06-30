@@ -30,6 +30,7 @@ export const COLORS = {
 
   // Marca / interacción
   brand: '#4F46E5',
+  brand2: '#8B5CF6',
   brandHover: '#4338CA',
   brandSoft: '#EEEFFE',
 } as const
@@ -39,7 +40,25 @@ export const FONTS = {
   mono: "'JetBrains Mono', monospace",
 } as const
 
-export const RADIUS = { sm: 8, md: 12, lg: 16, pill: 999 } as const
+export const RADIUS = { sm: 8, md: 12, lg: 16, xl: 22, pill: 999 } as const
+
+// Degradados y profundidad — capa de efectos del rediseño "vivo"
+export const GRADIENT = {
+  brand: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+  brandSoft: 'linear-gradient(135deg, #EEF0FE 0%, #F3EEFE 100%)',
+} as const
+
+export const SHADOW = {
+  card: '0 1px 2px rgba(16,24,40,0.04), 0 6px 20px rgba(16,24,40,0.05)',
+  cardHover: '0 4px 8px rgba(16,24,40,0.06), 0 18px 44px rgba(16,24,40,0.13)',
+  pill: '0 2px 8px rgba(79,70,229,0.28)',
+} as const
+
+/** Halo de color suave para destacar el veredicto. */
+export function glow(color: string, strength = 0.28): string {
+  const hex = Math.round(strength * 255).toString(16).padStart(2, '0')
+  return `0 10px 36px ${color}${hex}`
+}
 
 export interface VerdictMeta {
   /** etiqueta legible en español */
