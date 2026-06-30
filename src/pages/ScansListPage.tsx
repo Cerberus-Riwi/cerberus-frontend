@@ -1,123 +1,162 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ScanVerdict } from '../types/cerberus'
+import type { ScanVerdict, Verdict } from '../types/cerberus'
 import { getScanVerdicts, getScanRequest } from '../lib/scans'
-import { FONTS, COLORS, VERDICT_META } from '../lib/theme'
-import { ScanCard } from '../components/dashboard/ScanCard'
+import { COLORS, FONTS, RADIUS } from '../lib/theme'
+import { ScanList, type ScanRow } from '../components/dashboard/ScanList'
+import { StatCards, type VerdictFilter } from '../components/dashboard/StatCards'
 
 export function ScansListPage() {
   const [verdicts, setVerdicts] = useState<ScanVerdict[] | null>(null)
+  const [filter, setFilter] = useState<VerdictFilter>('all')
+  const [query, setQuery] = useState('')
   const now = useMemo(() => new Date(), [])
 
   useEffect(() => {
     let active = true
-    getScanVerdicts().then((data) => {
-      if (active) setVerdicts(data)
-    })
+    getScanVerdicts().then((data) => active && setVerdicts(data))
     return () => {
       active = false
     }
   }, [])
 
+  const rows: ScanRow[] = useMemo(
+    () => (verdicts ?? []).map((v) => ({ verdict: v, request: getScanRequest(v.scanId) })),
+    [verdicts],
+  )
+
   const counts = useMemo(() => {
-    const base = { pass: 0, warning: 0, fail: 0 }
-    for (const v of verdicts ?? []) base[v.verdict] += 1
+    const base: Record<Verdict, number> = { pass: 0, warning: 0, fail: 0 }
+    for (const r of rows) base[r.verdict.verdict] += 1
     return base
-  }, [verdicts])
+  }, [rows])
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return rows.filter((r) => {
+      if (filter !== 'all' && r.verdict.verdict !== filter) return false
+      if (!q) return true
+      const hay = `${r.request?.repositoryUrl ?? ''} ${r.request?.branch ?? ''}`.toLowerCase()
+      return hay.includes(q)
+    })
+  }, [rows, filter, query])
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'radial-gradient(120% 70% at 50% -10%, #0a1424 0%, #04060b 55%, #060406 100%)',
-        color: COLORS.text,
-        fontFamily: FONTS.body,
-      }}
-    >
-      <div style={{ maxWidth: 980, margin: '0 auto', padding: '40px 24px 80px' }}>
-        {/* Encabezado */}
-        <header style={{ marginBottom: 8 }}>
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: COLORS.muted,
-            }}
-          >
-            Cerberus · Security Gate
-          </span>
-          <h1
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 'clamp(34px, 6vw, 52px)',
-              fontWeight: 600,
-              letterSpacing: '0.02em',
-              textTransform: 'uppercase',
-              margin: '6px 0 0',
-            }}
-          >
-            Veredictos de escaneo
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Topbar */}
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          flexWrap: 'wrap',
+          padding: '18px 28px',
+          background: COLORS.surface,
+          borderBottom: `1px solid ${COLORS.border}`,
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+        }}
+      >
+        <div>
+          <h1 style={{ fontFamily: FONTS.sans, fontSize: 20, fontWeight: 600, color: COLORS.ink }}>
+            Escaneos
           </h1>
-        </header>
-
-        {/* Resumen por estado */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', margin: '22px 0 30px' }}>
-          {(['pass', 'warning', 'fail'] as const).map((v) => (
-            <div
-              key={v}
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 9,
-                padding: '9px 15px',
-                borderRadius: 12,
-                background: COLORS.panel,
-                border: `1px solid ${VERDICT_META[v].accent}40`,
-              }}
-            >
-              <strong
-                style={{
-                  fontFamily: FONTS.display,
-                  fontSize: 22,
-                  fontWeight: 600,
-                  color: VERDICT_META[v].accent,
-                }}
-              >
-                {counts[v]}
-              </strong>
-              <span
-                style={{
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: COLORS.muted,
-                }}
-              >
-                {VERDICT_META[v].label}
-              </span>
-            </div>
-          ))}
+          <p style={{ fontFamily: FONTS.sans, fontSize: 13, color: COLORS.textMuted, marginTop: 2 }}>
+            Veredictos del Security Gate por repositorio
+          </p>
         </div>
+        <SearchBox value={query} onChange={setQuery} />
+      </header>
 
-        {/* Lista */}
+      {/* Contenido */}
+      <div style={{ padding: '24px 28px 56px', display: 'flex', flexDirection: 'column', gap: 22 }}>
+        <StatCards counts={counts} active={filter} onSelect={setFilter} />
+
         {verdicts === null ? (
-          <p style={{ fontFamily: FONTS.mono, fontSize: 13, color: COLORS.muted }}>
-            Cargando veredictos…
-          </p>
-        ) : verdicts.length === 0 ? (
-          <p style={{ fontFamily: FONTS.mono, fontSize: 13, color: COLORS.muted }}>
-            Aún no hay escaneos. Cuando el CI dispare un análisis, aparecerá aquí.
-          </p>
+          <SkeletonList />
+        ) : filtered.length === 0 ? (
+          <EmptyState hasScans={rows.length > 0} />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {verdicts.map((v) => (
-              <ScanCard key={v.scanId} verdict={v} request={getScanRequest(v.scanId)} now={now} />
-            ))}
+          <div style={{ animation: 'cb-rise 0.3s ease' }}>
+            <ScanList rows={filtered} now={now} />
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function SearchBox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div style={{ position: 'relative', width: 'min(320px, 60vw)' }}>
+      <span
+        aria-hidden
+        style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: COLORS.textFaint, fontSize: 14 }}
+      >
+        ⌕
+      </span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Buscar repositorio o rama…"
+        aria-label="Buscar"
+        style={{
+          width: '100%',
+          padding: '9px 12px 9px 32px',
+          background: COLORS.surfaceSubtle,
+          border: `1px solid ${COLORS.border}`,
+          borderRadius: RADIUS.sm,
+          fontFamily: FONTS.sans,
+          fontSize: 13.5,
+          color: COLORS.text,
+          outline: 'none',
+        }}
+      />
+    </div>
+  )
+}
+
+function SkeletonList() {
+  const shimmer: React.CSSProperties = {
+    background: 'linear-gradient(90deg, #ECEEF1 25%, #F4F5F7 50%, #ECEEF1 75%)',
+    backgroundSize: '480px 100%',
+    animation: 'cb-shimmer 1.3s infinite linear',
+    borderRadius: 6,
+  }
+  return (
+    <div style={{ background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: RADIUS.lg, overflow: 'hidden' }}>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 20px', borderTop: i === 0 ? 'none' : `1px solid ${COLORS.border}` }}>
+          <div style={{ ...shimmer, width: 90, height: 22, borderRadius: 999 }} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
+            <div style={{ ...shimmer, width: '40%', height: 12 }} />
+            <div style={{ ...shimmer, width: '25%', height: 10 }} />
+          </div>
+          <div style={{ ...shimmer, width: 60, height: 12 }} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EmptyState({ hasScans }: { hasScans: boolean }) {
+  return (
+    <div
+      style={{
+        padding: '48px 24px',
+        textAlign: 'center',
+        background: COLORS.surface,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: RADIUS.lg,
+        color: COLORS.textMuted,
+        fontFamily: FONTS.sans,
+        fontSize: 14,
+      }}
+    >
+      {hasScans
+        ? 'Ningún escaneo coincide con el filtro. Ajusta la búsqueda o el estado.'
+        : 'Aún no hay escaneos. Cuando el CI dispare un análisis, aparecerá aquí.'}
     </div>
   )
 }
