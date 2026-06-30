@@ -25,6 +25,23 @@ export function hasIncompleteService(verdict: ScanVerdict): boolean {
   return verdict.results.some((r) => r.status !== 'success')
 }
 
+export interface SummaryCheck {
+  ok: boolean
+  received: SeveritySummary
+  computed: SeveritySummary
+}
+
+/**
+ * Audita que el summary emitido por el SecurityGate coincida con el conteo
+ * real de findings. Si no coincide, el veredicto pudo construirse sobre datos
+ * inconsistentes. Es la verificación de confianza del dashboard.
+ */
+export function verifySummary(verdict: ScanVerdict): SummaryCheck {
+  const computed = computeSummary(verdict)
+  const ok = SEVERITY_ORDER.every((sev) => verdict.summary[sev] === computed[sev])
+  return { ok, received: verdict.summary, computed }
+}
+
 /** Severidad más alta presente en el resumen, o null si no hay hallazgos. */
 export function topSeverity(summary: SeveritySummary): Severity | null {
   for (const sev of SEVERITY_ORDER) {
