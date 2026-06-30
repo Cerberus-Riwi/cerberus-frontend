@@ -24,6 +24,7 @@ export function HeroFilmSection() {
     const frames: HTMLImageElement[] = []
     let currentIdx = 0
     let sized = false
+    let lastLoadedIdx = -1
 
     function sizeCanvas() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -33,10 +34,7 @@ export function HeroFilmSection() {
       drawFrame(currentIdx)
     }
 
-    function drawFrame(idx: number) {
-      currentIdx = idx
-      const img = frames[idx]
-      if (!img?.complete || !img.naturalWidth || !sized) return
+    function drawImg(img: HTMLImageElement) {
       const W = canvas!.width
       const H = canvas!.height
       ctx!.clearRect(0, 0, W, H)
@@ -46,10 +44,25 @@ export function HeroFilmSection() {
       ctx!.drawImage(img, (W - w) / 2, (H - h) / 2, w, h)
     }
 
+    function drawFrame(idx: number) {
+      if (!sized) return
+      currentIdx = idx
+      const img = frames[idx]
+      if (img?.complete && img.naturalWidth) {
+        drawImg(img)
+      } else if (lastLoadedIdx >= 0) {
+        // frame no cargado aún — usa el último disponible como fallback
+        drawImg(frames[lastLoadedIdx])
+      }
+    }
+
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image()
       img.onload = () => {
+        lastLoadedIdx = Math.max(lastLoadedIdx, i)
         if (i === 0) { sizeCanvas(); drawFrame(0) }
+        // si ScrollTrigger ya avanzó y esperaba este frame, dibujarlo
+        if (i === currentIdx) drawFrame(i)
       }
       img.src = `/frames/cerberusframe${String(i + 1).padStart(4, '0')}.jpg`
       frames.push(img)
@@ -94,6 +107,10 @@ export function HeroFilmSection() {
     })
 
     window.addEventListener('resize', sizeCanvas)
+
+    // Recalcula posiciones después del primer paint (fuentes, layout)
+    requestAnimationFrame(() => ScrollTrigger.refresh())
+
     return () => {
       tlFade.scrollTrigger?.kill()
       tlFade.kill()

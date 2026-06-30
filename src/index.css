@@ -8,10 +8,16 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
 }
 
 body {
   background: #04060b;
+  margin: 0;
 }
 
 :root {

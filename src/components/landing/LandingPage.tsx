@@ -32,10 +32,10 @@ function CerberusLogo({ size = 26 }: { size?: number }) {
 function LandingScene() {
   return (
     <Canvas
-      style={{ position: 'absolute', inset: 0 }}
+      style={{ width: '100%', height: '100%' }}
       camera={{ position: [0, 0, 5], fov: 50 }}
+      gl={{ antialias: false, failIfMajorPerformanceCaveat: false }}
     >
-      <ambientLight intensity={0.3} />
       <GuardianParticles mode="register" />
     </Canvas>
   )
@@ -107,8 +107,6 @@ export function LandingPage() {
       fontFamily: "'Space Grotesk', system-ui, sans-serif",
       color: '#e9eef8',
       WebkitFontSmoothing: 'antialiased',
-      background: '#04060b',
-      overflowX: 'hidden',
     }}>
 
       {/* ── Fondo fijo: partículas 3D ── */}
@@ -116,10 +114,10 @@ export function LandingPage() {
         <LandingScene />
       </div>
 
-      {/* Overlay — oscurece el fondo a medida que se hace scroll */}
+      {/* Overlay — oscurece suavemente sin opacar las partículas inferiores */}
       <div aria-hidden style={{
         position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 100% 60% at 50% 0%, rgba(4,6,11,0.1) 0%, rgba(4,6,11,0.65) 100%)',
+        background: 'radial-gradient(ellipse 100% 60% at 50% 0%, rgba(4,6,11,0.08) 0%, rgba(4,6,11,0.32) 100%)',
       }} />
 
       {/* Grid decorativo fijo */}
@@ -136,39 +134,59 @@ export function LandingPage() {
         {/* ════ Hero + Film — frames desde el inicio, texto desaparece con scroll ════ */}
         <HeroFilmSection />
 
-        {/* ════ Ignición — transición (espacio para elemento 3D) ════ */}
+        {/* ════ Ignición — plano de luz con profundidad, texto flotando ════ */}
         <section id="ignicion" style={{
-          minHeight: '100vh',
+          minHeight: '100vh', position: 'relative',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', padding: '120px 24px',
-          background: '#04060b',
+          background: 'radial-gradient(ellipse 80% 70% at 50% 50%, #f5f8ff 0%, #e2ecff 40%, #c8d9ff 75%, #a8c0ff 100%)',
+          overflow: 'hidden',
         }}>
-          {/* Placeholder para el elemento 3D (fuego) — sin renderizado por ahora */}
+          {/* Vignette oscura top/bottom — da profundidad y transición suave */}
           <div aria-hidden style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'linear-gradient(180deg, #04060b 0%, rgba(4,6,11,0) 13%, rgba(4,6,11,0) 87%, #04060b 100%)',
+          }} />
+          {/* Brillo central extra */}
+          <div aria-hidden style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'radial-gradient(ellipse 50% 45% at 50% 50%, rgba(255,255,255,0.55) 0%, transparent 100%)',
+          }} />
+
+          {/* Placeholder para el elemento 3D (fuego) */}
+          <div aria-hidden style={{
+            position: 'relative', zIndex: 1,
             width: 200, height: 320, marginBottom: 64,
             borderRadius: 24,
-            border: '1px dashed rgba(255,138,61,0.1)',
-            background: 'radial-gradient(ellipse at 50% 80%, rgba(255,138,61,0.05) 0%, transparent 70%)',
+            border: '1px solid rgba(60,100,220,0.15)',
+            background: 'radial-gradient(ellipse at 50% 80%, rgba(80,120,255,0.08) 0%, transparent 70%)',
+            boxShadow: '0 24px 64px rgba(60,100,220,0.14), 0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
           }} />
 
           <span className="reveal" style={{
+            position: 'relative', zIndex: 1,
             display: 'block', fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 13, letterSpacing: '0.2em', color: '#ff8a3d',
+            fontSize: 13, letterSpacing: '0.2em', color: '#3b5fb8',
           }}>
             LA CHISPA
           </span>
           <h2 className="reveal" style={{
+            position: 'relative', zIndex: 1,
             margin: '16px auto 0', maxWidth: 760,
             fontSize: 'clamp(38px, 6vw, 78px)',
             fontFamily: "'Oswald', sans-serif", fontWeight: 700, textTransform: 'uppercase',
             lineHeight: 0.92, letterSpacing: '0.01em',
+            color: '#0d1832',
+            textShadow: '0 8px 40px rgba(60,100,220,0.22), 0 2px 10px rgba(0,0,0,0.1)',
             transitionDelay: '0.06s',
           }}>
             De la vigilancia,<br />la acción.
           </h2>
           <p className="reveal" style={{
+            position: 'relative', zIndex: 1,
             margin: '24px auto 0', maxWidth: 520,
-            fontSize: 19, lineHeight: 1.55, color: '#b7c6df',
+            fontSize: 19, lineHeight: 1.55, color: '#2c4472',
+            textShadow: '0 2px 12px rgba(60,100,220,0.1)',
             transitionDelay: '0.12s',
           }}>
             Cuando el guardián detecta, reacciona. Lo que sigue es el motor que lo hace posible —
