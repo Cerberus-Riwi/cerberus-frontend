@@ -4,11 +4,11 @@ import {
   createRouter,
   createRootRoute,
   createRoute,
-  redirect,
   Outlet,
 } from '@tanstack/react-router'
 import './index.css'
 import { AuthPage } from './components/auth/AuthPage'
+import { LandingPage } from './components/landing/LandingPage'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -17,7 +17,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  beforeLoad: () => { throw redirect({ to: '/login' }) },
+  component: LandingPage,
 })
 
 const loginRoute = createRoute({
