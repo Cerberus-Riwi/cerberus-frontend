@@ -62,11 +62,14 @@ export function CerberusModel({ mode }: CerberusModelProps) {
     const t = clock.getElapsedTime()
     const isLogin = mode === 'login'
 
-    // Desplazar cámara para centrar el modelo en la MITAD LIBRE de pantalla
-    // (la opuesta al formulario). Login → forma a la derecha, Cerbero a la
-    // izquierda; registro → al revés. Un offset mayor lo aleja del divisor y
-    // lo deja centrado en su mitad en vez de pegado al panel.
-    const camTargetX = isLogin ? 2.5 : -2.5
+    // Centrar el modelo en la MITAD LIBRE de pantalla (la opuesta al
+    // formulario), de forma robusta a cualquier aspect ratio: calculamos el
+    // ancho visible real a la profundidad del modelo (z=0) y desplazamos la
+    // cámara un cuarto de ese ancho — el centro exacto de la mitad libre.
+    const cam = camera as THREE.PerspectiveCamera
+    const viewHeight = 2 * Math.tan((cam.fov * Math.PI) / 360) * cam.position.z
+    const viewWidth = viewHeight * cam.aspect
+    const camTargetX = (isLogin ? 1 : -1) * viewWidth * 0.25
     camera.position.x += (camTargetX - camera.position.x) * 0.05
 
     // Suavizado de mouse
