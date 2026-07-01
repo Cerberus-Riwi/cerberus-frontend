@@ -535,7 +535,7 @@ export function LandingPage() {
           }}>
             Integra CERBERUS en tu pipeline de Kubernetes y deja que el guardián vigile cada release.
           </p>
-          <Link to="/register" className="reveal" style={{
+          <Link to="/login" className="reveal" style={{
             position: 'relative', zIndex: 2,
             display: 'inline-block',
             padding: '17px 38px', borderRadius: 999,
@@ -545,7 +545,7 @@ export function LandingPage() {
             fontFamily: "'Oswald', sans-serif", letterSpacing: '0.08em', textTransform: 'uppercase',
             transitionDelay: '0.14s',
           }}>
-            Comenzar gratis
+            Acceder
           </Link>
         </section>
 
