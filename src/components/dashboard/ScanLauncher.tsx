@@ -4,6 +4,8 @@ import { getUser } from '../../lib/auth'
 
 type ScanPhase = 'idle' | 'loading' | 'polling' | 'done' | 'error'
 
+const SHA1_PATTERN = /^[0-9a-f]{40}$/
+
 interface Props {
   onScanComplete?: (scanId: string) => void
 }
@@ -11,6 +13,7 @@ interface Props {
 export function ScanLauncher({ onScanComplete }: Props) {
   const [url, setUrl]       = useState('')
   const [branch, setBranch] = useState('main')
+  const [commitHash, setCommitHash] = useState('')
   const [phase, setPhase]   = useState<ScanPhase>('idle')
   const [status, setStatus] = useState<string | null>(null)
   const [scanId, setScanId] = useState<string | null>(null)
@@ -19,6 +22,13 @@ export function ScanLauncher({ onScanComplete }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (!SHA1_PATTERN.test(commitHash)) {
+      setError('El commit hash debe ser un SHA-1 de 40 caracteres hexadecimales en minúscula')
+      setPhase('error')
+      return
+    }
+
     setPhase('loading')
 
     try {
@@ -26,6 +36,7 @@ export function ScanLauncher({ onScanComplete }: Props) {
       const res = await createScan({
         repositoryUrl: url,
         branch,
+        commitHash,
         triggeredBy: user?.email,
       })
       setScanId(res.scanId)
@@ -56,7 +67,7 @@ export function ScanLauncher({ onScanComplete }: Props) {
     }, 3000)
   }
 
-  const reset = () => { setPhase('idle'); setUrl(''); setScanId(null); setStatus(null); setError(null) }
+  const reset = () => { setPhase('idle'); setUrl(''); setCommitHash(''); setScanId(null); setStatus(null); setError(null) }
 
   const isBusy = phase === 'loading' || phase === 'polling'
 
@@ -110,6 +121,22 @@ export function ScanLauncher({ onScanComplete }: Props) {
                 style={inputStyle}
               />
             </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, color: '#7e90ad', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Commit Hash
+            </label>
+            <input
+              type="text"
+              value={commitHash}
+              onChange={e => setCommitHash(e.target.value)}
+              placeholder="a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+              pattern="[0-9a-f]{40}"
+              required
+              disabled={isBusy}
+              style={inputStyle}
+            />
           </div>
 
           {error && (

@@ -47,6 +47,7 @@ export function login(email: string, password: string) {
 export interface CreateScanPayload {
   repositoryUrl: string
   branch: string
+  commitHash: string
   triggeredBy?: string
 }
 
