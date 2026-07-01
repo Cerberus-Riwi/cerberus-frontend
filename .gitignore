@@ -16,6 +16,7 @@ dist-ssr
 docsStudio/
 contextreposproject/
 .claude/
+PLAN.md
 
 # Editor directories and files
 .vscode/*
