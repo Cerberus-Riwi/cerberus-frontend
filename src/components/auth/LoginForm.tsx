@@ -18,8 +18,8 @@ export function LoginForm() {
     setError(null)
     setLoading(true)
     try {
-      const user = await login(email, password)
-      navigate({ to: user.role === 'admin' ? '/admin' : '/dashboard' })
+      await login(email, password)
+      navigate({ to: '/admin' })
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError('Correo o contraseña incorrectos.')

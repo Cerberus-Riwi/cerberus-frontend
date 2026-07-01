@@ -92,9 +92,6 @@ export function AdminPanel() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <a href="/dashboard" style={{ fontSize: 12, color: '#60a5fa', textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            ← Mi portal
-          </a>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: '#a78bfa', fontWeight: 700 }}>
               {user?.email?.[0]?.toUpperCase() ?? 'A'}

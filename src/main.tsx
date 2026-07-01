@@ -26,7 +26,7 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   beforeLoad: () => {
-    if (isAuthenticated()) throw redirect({ to: '/dashboard' })
+    if (isAuthenticated()) throw redirect({ to: '/admin' })
   },
   component: AuthPage,
 })
@@ -35,7 +35,7 @@ const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/dashboard',
   beforeLoad: () => {
-    if (!isAuthenticated()) throw redirect({ to: '/login' })
+    throw redirect({ to: '/admin' })
   },
   component: UserDashboard,
 })
@@ -44,7 +44,7 @@ const scanDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/dashboard/$scanId',
   beforeLoad: () => {
-    if (!isAuthenticated()) throw redirect({ to: '/login' })
+    throw redirect({ to: '/admin' })
   },
   component: () => {
     const { scanId } = scanDetailRoute.useParams()
@@ -57,7 +57,6 @@ const adminRoute = createRoute({
   path: '/admin',
   beforeLoad: () => {
     if (!isAuthenticated()) throw redirect({ to: '/login' })
-    if (!isAdmin())         throw redirect({ to: '/dashboard' })
   },
   component: AdminPanel,
 })
