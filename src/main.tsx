@@ -12,7 +12,7 @@ import { AuthPage } from './components/auth/AuthPage'
 import { LandingPage } from './components/landing/LandingPage'
 import { UserDashboard } from './components/dashboard/UserDashboard'
 import { AdminPanel } from './components/admin/AdminPanel'
-import { isAuthenticated, isAdmin } from './lib/auth'
+import { isAuthenticated } from './lib/auth'
 
 const rootRoute = createRootRoute({ component: () => <Outlet /> })
 

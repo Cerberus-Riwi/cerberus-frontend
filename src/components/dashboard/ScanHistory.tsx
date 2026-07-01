@@ -1,4 +1,4 @@
-import type { Verdict, Severity } from '../../types/cerberus'
+import type { Verdict } from '../../types/cerberus'
 
 export interface ScanHistoryItem {
   scanId: string
@@ -48,10 +48,6 @@ export function ScanHistory({ items, onSelect }: Props) {
 
       {items.map(item => {
         const badge = item.verdict ? VERDICT_BADGE[item.verdict] : null
-        const totalFindings = item.summary
-          ? item.summary.critical + item.summary.high + item.summary.medium
-          : null
-
         return (
           <div
             key={item.scanId}

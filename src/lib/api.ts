@@ -1,10 +1,8 @@
 import { getToken } from './auth'
 
-const SECURITY_GATE = import.meta.env.VITE_SECURITY_GATE_URL ?? 'http://localhost:5000'
-const ML_API        = import.meta.env.VITE_ML_API_URL        ?? 'http://localhost:8000'
-const VULN_API      = import.meta.env.VITE_VULN_API_URL      ?? 'http://localhost:5001'
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:5275'
 
-async function request<T>(baseUrl: string, path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = getToken()
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -12,7 +10,7 @@ async function request<T>(baseUrl: string, path: string, init: RequestInit = {})
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${baseUrl}${path}`, { ...init, headers })
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers })
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }))
     throw new ApiError(res.status, body?.error ?? res.statusText)
@@ -22,8 +20,10 @@ async function request<T>(baseUrl: string, path: string, init: RequestInit = {})
 }
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  status: number
+  constructor(status: number, message: string) {
     super(message)
+    this.status = status
   }
 }
 
@@ -36,7 +36,7 @@ export interface LoginResponse {
 }
 
 export function login(email: string, password: string) {
-  return request<LoginResponse>(SECURITY_GATE, '/api/auth/login', {
+  return request<LoginResponse>('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   })
@@ -64,7 +64,7 @@ export interface ScanStatus {
 }
 
 export function createScan(payload: CreateScanPayload) {
-  return request<ScanCreated>(SECURITY_GATE, '/api/scan/request', {
+  return request<ScanCreated>('/api/scan/request', {
     method: 'POST',
     body: JSON.stringify({
       ...payload,
@@ -74,13 +74,13 @@ export function createScan(payload: CreateScanPayload) {
 }
 
 export function getScanStatus(scanId: string) {
-  return request<ScanStatus>(SECURITY_GATE, `/api/scan/${scanId}/status`)
+  return request<ScanStatus>(`/api/scan/${scanId}/status`)
 }
 
 // ── Findings ──────────────────────────────────────────────────────────────────
 
 export function getScanFindings(scanId: string) {
-  return request<unknown>(VULN_API, `/api/v1/vulnerabilities/${scanId}`)
+  return request<unknown>(`/api/v1/vulnerabilities/${scanId}`)
 }
 
 // ── KPIs (cerberus-ml) ────────────────────────────────────────────────────────
@@ -102,11 +102,11 @@ export interface KpiDashboard {
 }
 
 export const kpi = {
-  dashboard:    () => request<KpiDashboard>(ML_API, '/api/kpis/dashboard'),
-  verdicts:     () => request<VerdictSummary[]>(ML_API, '/api/kpis/verdicts'),
-  severity:     () => request<SeveritySummary[]>(ML_API, '/api/kpis/severity'),
-  topRules:     (limit = 10) => request<TopRule[]>(ML_API, `/api/kpis/top-rules?limit=${limit}`),
-  repositories: () => request<RepositorySummary[]>(ML_API, '/api/kpis/repositories'),
-  history:      () => request<HistorySummary[]>(ML_API, '/api/kpis/history'),
-  health:       () => request<unknown>(ML_API, '/api/kpis/health'),
+  dashboard:    () => request<KpiDashboard>('/api/kpis/dashboard'),
+  verdicts:     () => request<VerdictSummary[]>('/api/kpis/verdicts'),
+  severity:     () => request<SeveritySummary[]>('/api/kpis/severity'),
+  topRules:     (limit = 10) => request<TopRule[]>(`/api/kpis/top-rules?limit=${limit}`),
+  repositories: () => request<RepositorySummary[]>('/api/kpis/repositories'),
+  history:      () => request<HistorySummary[]>('/api/kpis/history'),
+  health:       () => request<unknown>('/api/kpis/health'),
 }

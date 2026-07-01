@@ -8,12 +8,6 @@ interface Props {
   onScanComplete?: (scanId: string) => void
 }
 
-const VERDICT_COLOR: Record<string, string> = {
-  pass:    '#22d3ee',
-  warning: '#f59e0b',
-  fail:    '#ef4444',
-}
-
 export function ScanLauncher({ onScanComplete }: Props) {
   const [url, setUrl]       = useState('')
   const [branch, setBranch] = useState('main')

@@ -129,7 +129,7 @@ export function HeroFilmSection() {
           </p>
 
           <div style={{ display: 'flex', gap: 16, marginTop: 40, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link to="/register" style={{
+            <Link to="/login" style={{
               padding: '15px 30px', borderRadius: 999,
               background: 'linear-gradient(135deg, #ff4d1c, #ff8a3d)',
               color: '#0a0705', fontWeight: 600, fontSize: 16, textDecoration: 'none',
