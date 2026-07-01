@@ -40,20 +40,11 @@ export function AuthPage() {
         top: 80, bottom: 0,
         right: 0, width: '50%',
         zIndex: 10,
-        background: 'rgba(4, 6, 11, 0.38)',
-        backdropFilter: 'blur(28px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(160%)',
-        borderLeft: '1px solid rgba(255,255,255,0.06)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 24,
       }}>
-        <div aria-hidden style={{
-          position: 'absolute', top: '10%', bottom: '10%', left: 0, width: 1,
-          background: 'linear-gradient(to bottom, transparent, #22d3ee, transparent)',
-          opacity: 0.35,
-        }} />
         <LoginForm />
       </div>
     </div>

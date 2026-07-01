@@ -52,6 +52,8 @@ export function LoginForm() {
         letterSpacing: '0.01em',
         textTransform: 'uppercase',
         color: '#e9eef8',
+        textShadow: '0 4px 8px rgba(34, 211, 238, 0.2), 0 8px 16px rgba(139, 92, 246, 0.15), -2px -2px 0px rgba(255,255,255,0.05)',
+        transform: 'perspective(1000px) rotateX(2deg) rotateY(-2deg)',
       }}>
         Bienvenido<br />de vuelta
       </h1>

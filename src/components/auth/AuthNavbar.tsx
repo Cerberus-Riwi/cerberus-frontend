@@ -19,10 +19,10 @@ export function AuthNavbar({ mode, onSwitch }: AuthNavbarProps) {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '0 38px',
-      background: 'rgba(4, 6, 11, 0.38)',
-      backdropFilter: 'blur(28px) saturate(160%)',
-      WebkitBackdropFilter: 'blur(28px) saturate(160%)',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      background: 'rgba(4, 6, 11, 0.01)',
+      backdropFilter: 'blur(12px) saturate(160%)',
+      WebkitBackdropFilter: 'blur(12px) saturate(160%)',
+      borderBottom: 'none',
     }}>
       {/* Logo + nombre — link a la landing page */}
       <Link

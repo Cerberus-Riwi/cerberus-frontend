@@ -17,6 +17,7 @@ export function AuthInput({ label, ...props }: AuthInputProps) {
         color: '#7e90ad',
         textTransform: 'uppercase',
         marginBottom: 9,
+        textShadow: '0 2px 4px rgba(34, 211, 238, 0.1)',
       }}>
         {label}
       </label>
@@ -34,8 +35,11 @@ export function AuthInput({ label, ...props }: AuthInputProps) {
           fontFamily: "'Space Grotesk', sans-serif",
           fontSize: 15,
           outline: 'none',
-          transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-          boxShadow: focused ? '0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)' : 'none',
+          transition: 'border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
+          boxShadow: focused 
+            ? '0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent), 0 8px 24px rgba(34, 211, 238, 0.15), inset 0 2px 4px rgba(255,255,255,0.05)' 
+            : '0 4px 12px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.03)',
+          transform: focused ? 'perspective(1000px) translateZ(8px) rotateX(2deg)' : 'perspective(1000px) translateZ(2px)',
         }}
       />
     </div>
