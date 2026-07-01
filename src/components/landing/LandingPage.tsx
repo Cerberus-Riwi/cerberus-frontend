@@ -225,6 +225,7 @@ export function LandingPage() {
             background: 'linear-gradient(180deg, #04060b 0%, transparent 100%)',
           }} />
 
+
           <ScrollCube wrapperRef={lightZoneRef} />
 
         {/* ════ Ignición ════ */}

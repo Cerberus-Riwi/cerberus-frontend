@@ -5,14 +5,16 @@ import {
   createRootRoute,
   createRoute,
   Outlet,
+  redirect,
 } from '@tanstack/react-router'
 import './index.css'
 import { AuthPage } from './components/auth/AuthPage'
 import { LandingPage } from './components/landing/LandingPage'
+import { UserDashboard } from './components/dashboard/UserDashboard'
+import { AdminPanel } from './components/admin/AdminPanel'
+import { isAuthenticated, isAdmin } from './lib/auth'
 
-const rootRoute = createRootRoute({
-  component: () => <Outlet />,
-})
+const rootRoute = createRootRoute({ component: () => <Outlet /> })
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -23,16 +25,50 @@ const indexRoute = createRoute({
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: () => <AuthPage mode="login" />,
+  beforeLoad: () => {
+    if (isAuthenticated()) throw redirect({ to: '/dashboard' })
+  },
+  component: AuthPage,
 })
 
-const registerRoute = createRoute({
+const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/register',
-  component: () => <AuthPage mode="register" />,
+  path: '/dashboard',
+  beforeLoad: () => {
+    if (!isAuthenticated()) throw redirect({ to: '/login' })
+  },
+  component: UserDashboard,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, registerRoute])
+const scanDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/dashboard/$scanId',
+  beforeLoad: () => {
+    if (!isAuthenticated()) throw redirect({ to: '/login' })
+  },
+  component: () => {
+    const { scanId } = scanDetailRoute.useParams()
+    return <div style={{ padding: 40, color: '#e9eef8', fontFamily: 'monospace' }}>Detalle: {scanId} — próximamente</div>
+  },
+})
+
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  beforeLoad: () => {
+    if (!isAuthenticated()) throw redirect({ to: '/login' })
+    if (!isAdmin())         throw redirect({ to: '/dashboard' })
+  },
+  component: AdminPanel,
+})
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  dashboardRoute,
+  scanDetailRoute,
+  adminRoute,
+])
 
 const router = createRouter({ routeTree })
 

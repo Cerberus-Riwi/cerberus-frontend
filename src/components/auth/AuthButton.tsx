@@ -2,17 +2,19 @@ interface AuthButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   children: React.ReactNode
 }
 
-export function AuthButton({ children, style, ...props }: AuthButtonProps) {
+export function AuthButton({ children, style, disabled, ...props }: AuthButtonProps) {
   return (
     <button
       {...props}
+      disabled={disabled}
       style={{
         width: '100%',
         marginTop: 6,
         padding: '15px',
         border: 'none',
         borderRadius: 12,
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
         fontFamily: "'Oswald', sans-serif",
         fontWeight: 600,
         fontSize: 16,

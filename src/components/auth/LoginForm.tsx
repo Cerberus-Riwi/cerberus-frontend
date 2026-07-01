@@ -1,23 +1,34 @@
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { AuthInput } from './AuthInput'
 import { AuthButton } from './AuthButton'
-import type { LoginCredentials } from '../../types/cerberus'
+import { useAuth } from '../../lib/useAuth'
+import { ApiError } from '../../lib/api'
 
-interface LoginFormProps {
-  onSwitchToRegister: () => void
-}
+export function LoginForm() {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError]       = useState<string | null>(null)
+  const [loading, setLoading]   = useState(false)
 
-export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
-  const [form, setForm] = useState<LoginCredentials>({
-    email: '',
-    password: '',
-    rememberMe: false,
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: conectar con cerberus-securitygate auth endpoint
-    console.log('login:', form)
+    setError(null)
+    setLoading(true)
+    try {
+      const user = await login(email, password)
+      navigate({ to: user.role === 'admin' ? '/admin' : '/dashboard' })
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setError('Correo o contraseña incorrectos.')
+      } else {
+        setError('Error al conectar con el servidor. Intenta de nuevo.')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -28,7 +39,6 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         letterSpacing: '0.24em',
         color: 'var(--accent)',
         textTransform: 'uppercase',
-        transition: 'color 0.6s ease',
       }}>
         // acceso seguro
       </div>
@@ -55,8 +65,8 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           label="Correo"
           type="email"
           placeholder="tu@dominio.dev"
-          value={form.email}
-          onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+          value={email}
+          onChange={e => setEmail(e.target.value)}
           required
         />
 
@@ -64,39 +74,27 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           label="Contraseña"
           type="password"
           placeholder="••••••••"
-          value={form.password}
-          onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
+          value={password}
+          onChange={e => setPassword(e.target.value)}
           required
         />
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, color: '#9fb0cc' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={form.rememberMe}
-              onChange={(e) => setForm(f => ({ ...f, rememberMe: e.target.checked }))}
-              style={{ accentColor: 'var(--accent)', width: 15, height: 15 }}
-            />
-            Recordarme
-          </label>
-          <a href="#" style={{ color: 'var(--accent)', textDecoration: 'none', transition: 'color 0.6s ease' }}>
-            ¿Olvidaste?
-          </a>
-        </div>
+        {error && (
+          <div style={{
+            fontSize: 13, color: '#ef4444',
+            padding: '10px 14px',
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.24)',
+            borderRadius: 8,
+          }}>
+            {error}
+          </div>
+        )}
 
-        <AuthButton type="submit">Entrar</AuthButton>
+        <AuthButton type="submit" disabled={loading}>
+          {loading ? 'Verificando...' : 'Entrar'}
+        </AuthButton>
       </form>
-
-      <div style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#7e90ad' }}>
-        ¿No tienes cuenta?{' '}
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); onSwitchToRegister() }}
-          style={{ color: '#e9eef8', textDecoration: 'none', borderBottom: '1px solid var(--accent)', paddingBottom: 1 }}
-        >
-          Crear una
-        </a>
-      </div>
     </div>
   )
 }
