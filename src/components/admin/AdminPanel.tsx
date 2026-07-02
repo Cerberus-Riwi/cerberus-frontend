@@ -3,6 +3,7 @@ import { useAuth } from '../../lib/useAuth'
 import { ScanLauncher } from '../dashboard/ScanLauncher'
 import { ScanHistory } from '../dashboard/ScanHistory'
 import type { ScanHistoryItem } from '../dashboard/ScanHistory'
+import { ChatWidget } from './ChatWidget'
 
 const MOCK_MY_SCANS: ScanHistoryItem[] = [
   {
@@ -157,6 +158,8 @@ export function AdminPanel() {
         </div>
 
       </main>
+
+      <ChatWidget />
     </div>
   )
 }

@@ -79,3 +79,21 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ── Fire animation ── */
+@keyframes fireGlow {
+  from { transform: translateX(-50%) scaleX(1);    opacity: 0.82; }
+  to   { transform: translateX(-50%) scaleX(1.14); opacity: 1;    }
+}
+@keyframes fireOuter {
+  from { transform: translateX(-50%) scaleX(1)    scaleY(1)    skewX(-4deg); opacity: 0.85; }
+  to   { transform: translateX(-53%) scaleX(0.88) scaleY(1.07) skewX(4deg);  opacity: 1;    }
+}
+@keyframes fireMid {
+  from { transform: translateX(-50%) scaleX(1)    scaleY(1)    skewX(5deg);  opacity: 0.9; }
+  to   { transform: translateX(-47%) scaleX(1.12) scaleY(0.94) skewX(-5deg); opacity: 1;   }
+}
+@keyframes fireCore {
+  from { transform: translateX(-50%) scaleX(1)    scaleY(1);    opacity: 0.85; }
+  to   { transform: translateX(-50%) scaleX(0.84) scaleY(1.12); opacity: 1;    }
+}

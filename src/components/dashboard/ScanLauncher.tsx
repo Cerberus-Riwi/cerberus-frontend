@@ -50,7 +50,15 @@ export function ScanLauncher({ onScanComplete }: Props) {
   }
 
   const poll = async (id: string) => {
+    let attempts = 0
     const interval = setInterval(async () => {
+      attempts++
+      if (attempts > 40) {
+        clearInterval(interval)
+        setPhase('error')
+        setError('El escaneo tardó demasiado (>2 min). Verificá el estado del servicio.')
+        return
+      }
       try {
         const st = await getScanStatus(id)
         setStatus(st.status)

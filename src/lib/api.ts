@@ -102,6 +102,28 @@ export interface KpiDashboard {
   top_rules: TopRule[]; repositories: RepositorySummary[]; history: HistorySummary[]
 }
 
+// ── AI Chat (cerberus-ml) ─────────────────────────────────────────────────────
+
+export interface ChatFinding {
+  severity: string
+  title: string
+  ruleId?: string
+  filePath?: string
+  lineStart?: number
+  recommendation?: string
+}
+
+export interface ChatResponse {
+  reply: string
+}
+
+export function sendChatMessage(message: string, findings?: ChatFinding[]) {
+  return request<ChatResponse>('/api/ai/chat', {
+    method: 'POST',
+    body: JSON.stringify({ message, findings }),
+  })
+}
+
 export const kpi = {
   dashboard:    () => request<KpiDashboard>('/api/kpis/dashboard'),
   verdicts:     () => request<VerdictSummary[]>('/api/kpis/verdicts'),

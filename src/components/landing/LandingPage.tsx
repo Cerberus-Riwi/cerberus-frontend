@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { Canvas } from '@react-three/fiber'
 import { GuardianParticles } from '../three/GuardianParticles'
 import { HeroFilmSection } from './HeroFilmSection'
-import { ScrollCube } from './ScrollCube'
+import { ScrollFire } from './ScrollFire'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -24,7 +24,7 @@ const TOOLS = [
 
 // ── Tokens de sección clara ────────────────────────────────────────────────────
 
-const LIGHT_BG = 'radial-gradient(ellipse 80% 70% at 50% 50%, #f5f8ff 0%, #e2ecff 40%, #c8d9ff 75%, #a8c0ff 100%)'
+const LIGHT_BG = 'radial-gradient(ellipse 80% 70% at 50% 50%, #fff8f2 0%, #ffede0 40%, #ffd5b0 75%, #ffb87a 100%)'
 
 // ← ajuste manual: sube este número para extender más la zona negra de transición
 const TOP_FADE_PX = 4000
@@ -51,8 +51,8 @@ function FloatingCubes() {
             position: 'absolute',
             left: c.left, top: c.top,
             width: c.size, height: c.size,
-            border: '1px solid rgba(37, 99, 235, 0.32)',
-            background: 'rgba(37, 99, 235, 0.06)',
+            border: '1px solid rgba(224, 85, 24, 0.32)',
+            background: 'rgba(224, 85, 24, 0.07)',
             borderRadius: 2,
             animation: `cubeFloat ${c.dur} ${c.delay} ease-in-out infinite`,
           }}
@@ -225,11 +225,11 @@ export function LandingPage() {
             background: 'linear-gradient(180deg, #04060b 0%, transparent 100%)',
           }} />
 
-          <ScrollCube wrapperRef={lightZoneRef} />
+          <ScrollFire wrapperRef={lightZoneRef} />
 
         {/* ════ Ignición ════ */}
         <section id="ignicion" style={{
-          minHeight: '100vh', position: 'relative', overflow: 'hidden',
+          minHeight: '100vh', position: 'relative', overflow: 'hidden', zIndex: 8,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', padding: '1400px 24px 120px',
           background: 'transparent',
@@ -240,7 +240,7 @@ export function LandingPage() {
           <span className="reveal" style={{
             position: 'relative', zIndex: 2,
             display: 'block', fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 13, letterSpacing: '0.2em', color: '#3b5fb8',
+            fontSize: 13, letterSpacing: '0.2em', color: '#bf5416',
           }}>
             LA CHISPA
           </span>
@@ -250,8 +250,8 @@ export function LandingPage() {
             fontSize: 'clamp(38px, 6vw, 78px)',
             fontFamily: "'Oswald', sans-serif", fontWeight: 700, textTransform: 'uppercase',
             lineHeight: 0.92, letterSpacing: '0.01em',
-            color: '#0d1832',
-            textShadow: '0 8px 40px rgba(60,100,220,0.22), 0 2px 10px rgba(0,0,0,0.1)',
+            color: '#1c0a04',
+            textShadow: '0 0 90px rgba(255,100,20,0.50), 0 8px 40px rgba(220,80,10,0.40), 0 2px 10px rgba(0,0,0,0.10)',
             transitionDelay: '0.06s',
           }}>
             De la vigilancia,<br />la acción.
@@ -259,8 +259,8 @@ export function LandingPage() {
           <p className="reveal" style={{
             position: 'relative', zIndex: 2,
             margin: '24px auto 0', maxWidth: 520,
-            fontSize: 19, lineHeight: 1.55, color: '#2c4472',
-            textShadow: '0 2px 12px rgba(60,100,220,0.1)',
+            fontSize: 19, lineHeight: 1.55, color: '#59311a',
+            textShadow: '0 0 40px rgba(255,100,20,0.28), 0 2px 12px rgba(220,90,30,0.16)',
             transitionDelay: '0.12s',
           }}>
             Cuando el guardián detecta, reacciona. Lo que sigue es el motor que lo hace posible —
@@ -279,7 +279,7 @@ export function LandingPage() {
           <div style={{ maxWidth: 560, position: 'relative', zIndex: 2 }}>
             <span className="reveal" style={{
               display: 'block', fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 13, letterSpacing: '0.2em', color: '#1b6cb8',
+              fontSize: 13, letterSpacing: '0.2em', color: '#bf5416',
             }}>
               01 — EL PIPELINE
             </span>
@@ -288,15 +288,15 @@ export function LandingPage() {
               fontSize: 'clamp(34px, 5vw, 58px)',
               fontFamily: "'Oswald', sans-serif", fontWeight: 700, textTransform: 'uppercase',
               lineHeight: 0.98, letterSpacing: '0.01em',
-              color: '#0d1832',
-              textShadow: '0 8px 40px rgba(60,100,220,0.22), 0 2px 10px rgba(0,0,0,0.1)',
+              color: '#1c0a04',
+              textShadow: '0 8px 40px rgba(220,90,30,0.22), 0 2px 10px rgba(0,0,0,0.08)',
               transitionDelay: '0.06s',
             }}>
               Un pipeline,<br />cero brechas.
             </h2>
             <p className="reveal" style={{
               margin: '0 0 44px', fontSize: 18, lineHeight: 1.55,
-              color: '#2c4472', maxWidth: 440,
+              color: '#59311a', maxWidth: 440,
               transitionDelay: '0.12s',
             }}>
               Del commit al despliegue, CERBERUS intercepta cada cambio y lo somete a control sin intervención manual.
@@ -307,20 +307,20 @@ export function LandingPage() {
                 <div key={step.n} className="reveal" style={{
                   display: 'flex', gap: 18, padding: '20px 22px',
                   borderRadius: 16,
-                  border: '1px solid rgba(60,100,200,0.18)',
-                  background: 'rgba(255,255,255,0.62)',
+                  border: '1px solid rgba(200,90,30,0.18)',
+                  background: 'rgba(255,249,242,0.72)',
                   backdropFilter: 'blur(12px)',
                   WebkitBackdropFilter: 'blur(12px)',
-                  boxShadow: '0 4px 20px rgba(60,100,200,0.08)',
+                  boxShadow: '0 4px 20px rgba(200,90,30,0.08)',
                   transitionDelay: `${0.18 + i * 0.06}s`,
                 }}>
                   <div style={{
                     flex: 'none', width: 38, height: 38, borderRadius: 10,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 14,
-                    color: '#2563eb',
-                    background: 'rgba(37,99,235,0.1)',
-                    border: '1px solid rgba(37,99,235,0.25)',
+                    color: '#e05518',
+                    background: 'rgba(224,85,24,0.1)',
+                    border: '1px solid rgba(224,85,24,0.28)',
                   }}>
                     {step.n}
                   </div>
@@ -336,7 +336,7 @@ export function LandingPage() {
 
         {/* ════ Herramientas ════ */}
         <section id="herramientas" style={{
-          minHeight: '120vh', position: 'relative', overflow: 'hidden',
+          minHeight: '120vh', position: 'relative', overflow: 'hidden', zIndex: 8,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end',
           textAlign: 'center', padding: '120px 7vw 130px',
           background: 'transparent',
@@ -345,7 +345,7 @@ export function LandingPage() {
           <span className="reveal" style={{
             position: 'relative', zIndex: 2,
             display: 'block', fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 13, letterSpacing: '0.2em', color: '#1b6cb8',
+            fontSize: 13, letterSpacing: '0.2em', color: '#bf5416',
           }}>
             02 — CUATRO MOTORES, UNA DEFENSA
           </span>
@@ -355,15 +355,15 @@ export function LandingPage() {
             fontSize: 'clamp(34px, 5vw, 58px)',
             fontFamily: "'Oswald', sans-serif", fontWeight: 700, textTransform: 'uppercase',
             lineHeight: 0.98, letterSpacing: '0.01em',
-            color: '#0d1832',
-            textShadow: '0 8px 40px rgba(60,100,220,0.22), 0 2px 10px rgba(0,0,0,0.1)',
+            color: '#1c0a04',
+            textShadow: '0 8px 40px rgba(220,90,30,0.22), 0 2px 10px rgba(0,0,0,0.08)',
             transitionDelay: '0.06s',
           }}>
             Las tres cabezas, más el rastreador.
           </h2>
           <p className="reveal" style={{
             position: 'relative', zIndex: 2,
-            margin: '0 auto 50px', maxWidth: 560, fontSize: 18, lineHeight: 1.55, color: '#2c4472',
+            margin: '0 auto 50px', maxWidth: 560, fontSize: 18, lineHeight: 1.55, color: '#59311a',
             transitionDelay: '0.12s',
           }}>
             Herramientas líderes del ecosistema open-source, orquestadas en paralelo y normalizadas en un solo veredicto.
@@ -379,11 +379,11 @@ export function LandingPage() {
               <div key={tool.name} className="reveal" style={{
                 textAlign: 'left', padding: 28,
                 borderRadius: 20,
-                border: '1px solid rgba(60,100,200,0.15)',
-                background: 'rgba(255,255,255,0.62)',
+                border: '1px solid rgba(200,90,30,0.15)',
+                background: 'rgba(255,249,242,0.72)',
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
-                boxShadow: '0 4px 24px rgba(60,100,200,0.09)',
+                boxShadow: '0 4px 24px rgba(200,90,30,0.09)',
                 transitionDelay: `${0.18 + i * 0.06}s`,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
@@ -391,7 +391,7 @@ export function LandingPage() {
                   <span style={{
                     fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.14em',
                     padding: '5px 11px', borderRadius: 999,
-                    color: '#2563eb', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)',
+                    color: '#e05518', background: 'rgba(224,85,24,0.09)', border: '1px solid rgba(224,85,24,0.22)',
                   }}>
                     {tool.tag}
                   </span>
@@ -413,7 +413,7 @@ export function LandingPage() {
           <div style={{ maxWidth: 560, position: 'relative', zIndex: 2 }}>
             <span className="reveal" style={{
               display: 'block', fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 13, letterSpacing: '0.2em', color: '#1b6cb8',
+              fontSize: 13, letterSpacing: '0.2em', color: '#bf5416',
             }}>
               03 — AI ADVISOR
             </span>
@@ -422,14 +422,14 @@ export function LandingPage() {
               fontSize: 'clamp(34px, 5vw, 58px)',
               fontFamily: "'Oswald', sans-serif", fontWeight: 700, textTransform: 'uppercase',
               lineHeight: 0.98, letterSpacing: '0.01em',
-              color: '#0d1832',
-              textShadow: '0 8px 40px rgba(60,100,220,0.22), 0 2px 10px rgba(0,0,0,0.1)',
+              color: '#1c0a04',
+              textShadow: '0 8px 40px rgba(220,90,30,0.22), 0 2px 10px rgba(0,0,0,0.08)',
               transitionDelay: '0.06s',
             }}>
               No solo detecta.<br />Explica.
             </h2>
             <p className="reveal" style={{
-              margin: '0 0 36px', fontSize: 18, lineHeight: 1.55, color: '#2c4472', maxWidth: 460,
+              margin: '0 0 36px', fontSize: 18, lineHeight: 1.55, color: '#59311a', maxWidth: 460,
               transitionDelay: '0.12s',
             }}>
               El AI Advisor traduce cada vulnerabilidad a lenguaje claro — contexto, impacto y
@@ -439,7 +439,7 @@ export function LandingPage() {
             {/* Terminal — conserva estilo oscuro, se ve bien sobre fondo claro */}
             <div className="reveal" style={{
               borderRadius: 20,
-              border: '1px solid rgba(120,160,220,0.18)',
+              border: '1px solid rgba(200,120,60,0.18)',
               background: 'rgba(7,11,20,0.92)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
@@ -450,7 +450,7 @@ export function LandingPage() {
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '13px 18px',
-                borderBottom: '1px solid rgba(120,160,220,0.10)',
+                borderBottom: '1px solid rgba(200,120,60,0.10)',
                 background: 'rgba(12,18,30,0.7)',
               }}>
                 <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#ff5f57', display: 'inline-block' }} />
@@ -482,7 +482,7 @@ export function LandingPage() {
                 <div style={{
                   fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, lineHeight: 1.7,
                   padding: 14, borderRadius: 10, background: '#070b14',
-                  border: '1px solid rgba(120,160,220,0.10)',
+                  border: '1px solid rgba(200,120,60,0.10)',
                 }}>
                   <div style={{ color: '#ff7a85' }}>{`- query = f"SELECT * FROM users WHERE name='{username}'"`}</div>
                   <div style={{ color: '#5be3a0' }}>{`+ cursor.execute("SELECT * FROM users WHERE name=%s", [username])`}</div>
@@ -511,7 +511,7 @@ export function LandingPage() {
 
         {/* ════ CTA final ════ */}
         <section id="demo" style={{
-          minHeight: '90vh', position: 'relative', overflow: 'hidden',
+          minHeight: '90vh', position: 'relative', overflow: 'hidden', zIndex: 8,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', padding: '120px 24px 80px',
           background: 'transparent',
@@ -522,15 +522,15 @@ export function LandingPage() {
             fontSize: 'clamp(40px, 7vw, 86px)',
             fontFamily: "'Oswald', sans-serif", fontWeight: 700, textTransform: 'uppercase',
             lineHeight: 0.92, letterSpacing: '0.01em',
-            color: '#0d1832',
-            textShadow: '0 8px 40px rgba(60,100,220,0.25), 0 2px 10px rgba(0,0,0,0.1)',
+            color: '#1c0a04',
+            textShadow: '0 8px 40px rgba(220,90,30,0.25), 0 2px 10px rgba(0,0,0,0.08)',
           }}>
             Despliega rápido.<br />Duerme tranquilo.
           </h2>
           <p className="reveal" style={{
             position: 'relative', zIndex: 2,
             maxWidth: 520, margin: '26px auto 38px',
-            fontSize: 19, lineHeight: 1.55, color: '#2c4472',
+            fontSize: 19, lineHeight: 1.55, color: '#59311a',
             transitionDelay: '0.08s',
           }}>
             Integra CERBERUS en tu pipeline de Kubernetes y deja que el guardián vigile cada release.
@@ -539,9 +539,9 @@ export function LandingPage() {
             position: 'relative', zIndex: 2,
             display: 'inline-block',
             padding: '17px 38px', borderRadius: 999,
-            background: 'linear-gradient(135deg, #2563eb, #22d3ee)',
-            color: '#f0f7ff', fontWeight: 700, fontSize: 17, textDecoration: 'none',
-            boxShadow: '0 14px 50px rgba(37,99,235,0.35)',
+            background: 'linear-gradient(135deg, #ff4d1c, #ff8a3d)',
+            color: '#fff8f2', fontWeight: 700, fontSize: 17, textDecoration: 'none',
+            boxShadow: '0 14px 50px rgba(255,77,28,0.40)',
             fontFamily: "'Oswald', sans-serif", letterSpacing: '0.08em', textTransform: 'uppercase',
             transitionDelay: '0.14s',
           }}>
@@ -563,8 +563,8 @@ export function LandingPage() {
             <span style={{
               fontFamily: "'Orbitron', 'JetBrains Mono', monospace", fontWeight: 900,
               letterSpacing: '0.22em', fontSize: 18, textTransform: 'uppercase',
-              color: '#0d1832',
-              textShadow: '0 0 28px rgba(37,99,235,0.28), 0 2px 8px rgba(0,0,0,0.08)',
+              color: '#1c0a04',
+              textShadow: '0 0 28px rgba(220,90,30,0.30), 0 2px 8px rgba(0,0,0,0.08)',
             }}>
               CERBERUS
             </span>
@@ -573,7 +573,7 @@ export function LandingPage() {
           <div className="reveal" style={{
             position: 'relative', zIndex: 2,
             fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5,
-            color: '#3d5580', letterSpacing: '0.1em', textTransform: 'uppercase',
+            color: '#7a4a2e', letterSpacing: '0.1em', textTransform: 'uppercase',
             transitionDelay: '0.1s',
           }}>
             TRES CABEZAS · UN VEREDICTO · 2026
