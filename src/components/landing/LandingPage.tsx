@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { Canvas } from '@react-three/fiber'
 import { GuardianParticles } from '../three/GuardianParticles'
 import { HeroFilmSection } from './HeroFilmSection'
-import { ScrollFire } from './ScrollFire'
+import { ScrollLogo3D } from './ScrollLogo3D'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -225,7 +225,7 @@ export function LandingPage() {
             background: 'linear-gradient(180deg, #04060b 0%, transparent 100%)',
           }} />
 
-          <ScrollFire wrapperRef={lightZoneRef} />
+          <ScrollLogo3D wrapperRef={lightZoneRef} />
 
         {/* ════ Ignición ════ */}
         <section id="ignicion" style={{
