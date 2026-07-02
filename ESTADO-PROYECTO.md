@@ -1,123 +1,121 @@
 # Cerberus — Estado del proyecto
 
-> Última actualización: 2026-07-01
-> Rama activa frontend: `develop`
+> Última actualización: 2026-07-02
+> Workflow: push directo a `main` → CI/CD → producción automática
 
 ---
 
-## Qué hay hecho
+## Estado actual — todo en `main` y desplegado
 
-### Frontend (`cerberus-frontend` — rama `develop`)
+### Frontend (`cerberus-frontend`)
 
-- Landing page completa con animaciones scroll (GSAP + cubo 3D CSS)
-- Portal de admin en `/admin` — lanzar escaneos, ver historial (con datos mock)
+- Landing page con animaciones scroll, fuego CSS, colores cálidos (zona de luz)
+- Portal de admin `/admin` — lanzar escaneos, historial, chatbot de seguridad
 - Login conectado al backend (`POST /api/auth/login`)
 - Guards de ruta: `/admin` requiere JWT, `/login` redirige si ya hay sesión
-- Cliente HTTP unificado — una sola variable `VITE_API_URL` para todo el backend
-- Build de producción sin errores TypeScript
+- Cliente HTTP unificado — un solo `VITE_API_URL` para todo (Traefik rutea por path)
+- Polling con timeout de 2 min (40 intentos × 3s) — ya no se cuelga si el backend se congela
+- **ChatWidget** — asistente flotante en el admin, conectado a Azure OpenAI via `/api/ai/chat`
+- **CI/CD**: push a `main` → build Docker con `VITE_API_URL` horneada → push a `ghcr.io`
 
-### API Gateway (`cerberus-k8s` — rama `feat/CER-traefik-gateway`)
+> Secret requerido en GitHub Actions del repo frontend:
+> `VITE_API_URL = https://api.cerberus.jaramc.dev`
 
-Traefik configurado como gateway con:
+### Proxy Vite (desarrollo local sin cluster)
+
+`vite.config.ts` ruteando por puerto según path:
+
+| Path | Puerto local |
+|---|---|
+| `/api/ai`, `/api/kpis` | `:8000` (cerberus-ml) |
+| `/api/auth`, `/api/scan` | `:5275` (securitygate) |
+| `/api/v1` | `:5114` (vulnerability) |
+
+Para dev local: no setear `VITE_API_URL` → usa proxy automáticamente.
+
+### API Gateway (`cerberus-k8s`)
+
+Traefik configurado con:
 
 - **Rate limiting**: 100 req/min por IP
-- **ForwardAuth**: valida el JWT contra `/api/auth/me` antes de dejar pasar cualquier ruta protegida
-- **Security headers** y CORS para desarrollo local
-- Rutas públicas: `/api/auth/*`
-- Rutas protegidas: `/api/scan/*`, `/api/kpis/*`, `/api/v1/vulnerabilities/*`
+- **ForwardAuth**: valida JWT contra `/api/auth/me` antes de rutas protegidas
+- **Security headers** y CORS
 
-> Fix incluido: la ruta anterior `/api/ai` → analytics estaba rota. Corregida a `/api/kpis` (que es donde sirve cerberus-ml).
+| Ruta | Servicio | Auth |
+|---|---|---|
+| `/api/auth/*` | security-gate:5275 | pública |
+| `/api/scan/*` | security-gate:5275 | JWT |
+| `/api/v1/vulnerabilities/*` | vulnerability-service:5114 | JWT |
+| `/api/codequality/*` | code-quality-service:5003 | JWT |
+| `/api/quality-gate/*` | qualitygate-service:5004 | JWT |
+| `/api/kpis/*` | analytics:8000 | JWT |
+| `/api/ai/*` | analytics:8000 | JWT |
+| `/n8n` | n8n:5678 | pública |
+| `/` | frontend:80 | pública |
 
-### Auth en securitygate (`cerberus-securitygate` — rama `feat/CER-auth-login`)
+### cerberus-ml (analytics)
+
+- KPIs históricos en `/api/kpis/*`
+- **Chatbot Azure OpenAI** en `POST /api/ai/chat`
+  - Recibe `{ message, findings? }` → arma contexto → llama a Azure → devuelve `{ reply }`
+  - Credenciales en k8s secret `ai-secret` (ya montado)
+  - CORS habilitado para `localhost:5173` y `localhost:4173`
+  - `openai>=1.0.0` en `pyproject.toml` y `uv.lock`
+
+### cerberus-securitygate
 
 - `POST /api/auth/login` — valida email + BCrypt, devuelve JWT
-- `GET /api/auth/me` — valida token, devuelve perfil + headers `X-User-Id / X-User-Email / X-User-Role` (necesarios para ForwardAuth)
-- Entidad `User` en base de datos con BCrypt hash
-- NuGet agregados: `BCrypt.Net-Next`, `JwtBearer`, `System.IdentityModel.Tokens.Jwt`
-
-Usuario admin en DB: `admin@cerberus.com` / `admin123`
+- `GET /api/auth/me` — valida token + emite headers `X-User-Id / X-User-Email / X-User-Role`
+- Usuario admin: `admin@cerberus.com` / `admin123`
 
 ---
 
-## Qué falta para que el sistema funcione en producción
+## Pendiente
 
-### 1. Mergear las ramas pendientes
+### Chatbot — activar en prod
 
-| Repo | Rama | Acción |
-|---|---|---|
-| `cerberus-securitygate` | `feat/CER-auth-login` | Merge a `main` → redesploy de la imagen |
-| `cerberus-k8s` | `feat/CER-traefik-gateway` | Merge a `main` → aplicar en cluster |
+1. Obtener el `DEPLOYMENT_NAME` de Azure OpenAI Studio → Deployments
+2. Verificar que el k8s secret `ai-secret` tenga las 3 vars:
+   ```
+   AZURE_OPENAI_ENDPOINT    = https://cerberus.openai.azure.com/
+   AZURE_OPENAI_API_KEY     = <key>
+   AZURE_OPENAI_DEPLOYMENT  = <deployment-name>
+   ```
+3. `kubectl rollout restart deployment/analytics -n cerberus`
 
-### 2. Aplicar el gateway en el cluster
-
-Desde el servidor (SSH) o con kubectl apuntando al cluster k3s:
+### Rollout general (después de cada push a main)
 
 ```bash
-# Borrar el Ingress estándar anterior
-kubectl delete ingress cerberus-ingress -n cerberus
-
-# Aplicar los nuevos recursos de Traefik
-kubectl apply -f k8s/infrastructure/ingress/middlewares.yaml
-kubectl apply -f k8s/infrastructure/ingress/ingress.yaml
-
-# Verificar
-kubectl get middleware -n cerberus
-kubectl get ingressroute -n cerberus
+kubectl rollout restart deployment/<servicio> -n cerberus
 ```
 
-> **Importante:** verificar la versión de Traefik en el cluster.
-> ```bash
-> kubectl get deploy traefik -n kube-system -o jsonpath='{.spec.template.spec.containers[0].image}'
-> ```
-> - Traefik v2.x → `apiVersion: traefik.containo.us/v1alpha1` (lo que está ahora en los YAMLs)
-> - Traefik v3.x → cambiar a `traefik.io/v1alpha1` en `middlewares.yaml` e `ingress.yaml`
+### Próximas features
 
-### 3. Configurar el JWT secret en el cluster
+- `ScanDetail` — página `/dashboard/:scanId` con findings completos del escaneo
+- KPIs globales — tab en admin (marcado SOON), consumir `kpi.dashboard()`
+- Pasar findings del último scan al ChatWidget para contexto en tiempo real
+- Gestión de usuarios (tab SOON)
 
-El `JwtService` de securitygate lee `Jwt__Key` como variable de entorno. Crear el secret en k8s:
+---
+
+## Para probar localmente (sin cluster)
 
 ```bash
-kubectl create secret generic securitygate-jwt \
-  --from-literal=JWT_KEY="<clave-secreta-aleatoria-larga>" \
-  -n cerberus
+# Terminal 1 — cerberus-ml
+cd contextreposproject/cerberus-ml
+uvicorn api.main:app --reload --port 8000
+
+# Terminal 2 — cerberus-securitygate
+cd contextreposproject/cerberus-securitygate
+dotnet run
+
+# Terminal 3 — frontend (sin VITE_API_URL → usa proxy)
+npm run dev
 ```
 
-Luego referenciarlo en el deployment de `security-gate` como env var `Jwt__Key`.
-
-### 4. Configurar el entorno local para desarrollo
-
+Test chatbot:
 ```bash
-# En ~/.zshrc del desarrollador (la IP nunca va en el repo)
-export SSH_HOST=<IP pública del servidor k3s>
-
-# El .env.local del frontend ya tiene:
-# VITE_API_URL=http://${SSH_HOST}
-```
-
-### 5. Probar el flujo completo
-
-Una vez aplicados los pasos anteriores:
-
-```bash
-# Verificar login
-curl -X POST http://<IP>/api/auth/login \
+curl -X POST http://localhost:8000/api/ai/chat \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@cerberus.com","password":"admin123"}'
-# Esperado: { "token": "eyJ...", "user": { "role": "admin" } }
-
-# Verificar que ForwardAuth bloquea sin token
-curl http://<IP>/api/scan/test/status
-# Esperado: 401
-
-# Abrir el frontend
-npm run dev   # localhost:5173/login
+  -d '{"message":"¿Qué es un SQL injection y qué tan grave es?"}'
 ```
-
----
-
-## Qué sigue después de producción
-
-- `ScanDetail` — página de detalle de un escaneo con todos sus findings (`/dashboard/:scanId`)
-- KPIs globales en el panel de admin (tab "KPIs Globales" marcado como SOON)
-- Gestión de usuarios (tab "Usuarios" marcado como SOON)
-- Filtrado de historial por usuario cuando haya multi-tenant
