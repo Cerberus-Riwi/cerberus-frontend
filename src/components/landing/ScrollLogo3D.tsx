@@ -1,14 +1,13 @@
 import { useEffect, useRef, Suspense } from 'react'
 import type { RefObject } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, Center } from '@react-three/drei'
+import { useGLTF, Bounds, Center } from '@react-three/drei'
 import * as THREE from 'three'
 
-const LOGO_SIZE = 200   // px — canvas 3D
+const LOGO_SIZE = 240   // px — canvas 3D
 const WAVES     = 2
 const PHASE     = 0
 
-// precargar para evitar parpadeo
 useGLTF.preload('/models/3DLogotipo.glb')
 
 interface Props {
@@ -39,7 +38,7 @@ export function ScrollLogo3D({ wrapperRef }: Props) {
 
       const screenX = vw / 2 + xOff
 
-      // Fade in rápido al entrar, NO desaparece al final — se queda visible
+      // Fade in al entrar, NO desaparece al final
       const alpha = rawProg < 0 ? 0 : Math.min(1, rawProg * 10)
 
       container.style.transform = `translate3d(${screenX - LOGO_SIZE / 2}px, ${screenY - LOGO_SIZE / 2}px, 0)`
@@ -81,14 +80,17 @@ export function ScrollLogo3D({ wrapperRef }: Props) {
     >
       <Canvas
         gl={{ alpha: true, antialias: true }}
-        camera={{ position: [0, 0, 4], fov: 38 }}
         style={{ background: 'transparent' }}
+        onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
       >
-        <ambientLight intensity={1.4} />
-        <directionalLight position={[4, 5, 6]} intensity={2.2} />
-        <directionalLight position={[-3, -2, -4]} intensity={0.6} color="#ffb87a" />
+        <ambientLight intensity={1.6} />
+        <directionalLight position={[4, 5, 6]}  intensity={2.4} />
+        <directionalLight position={[-3, -2, -4]} intensity={0.8} color="#ffb87a" />
         <Suspense fallback={null}>
-          <LogoModel />
+          {/* Bounds mide el bounding box del modelo y ajusta la cámara para que entre completo */}
+          <Bounds fit clip observe margin={1.15}>
+            <LogoModel />
+          </Bounds>
         </Suspense>
       </Canvas>
     </div>
@@ -100,12 +102,9 @@ function LogoModel() {
   const groupRef  = useRef<THREE.Group>(null)
 
   useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.55
-    }
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.5
   })
 
-  // clonar para evitar mutar la escena original si el componente se re-monta
   const cloned = scene.clone(true)
 
   return (
